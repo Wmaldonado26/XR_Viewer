@@ -1,0 +1,173 @@
+/* src/components/CustomHotspot.css */
+
+/* Base */
+.hs-root {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transform: translateZ(0);
+  user-select: none;
+}
+
+/* Ring animado */
+.hs-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 999px;
+  opacity: 0.75;
+  filter: blur(0.2px);
+  animation: hs-pulse 2s infinite;
+}
+
+/* Core (glass) */
+.hs-core {
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.25);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+  overflow: hidden;
+}
+
+/* Shine */
+.hs-core::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 30% 25%,
+    rgba(255, 255, 255, 0.75),
+    rgba(255, 255, 255, 0.05) 55%,
+    rgba(0, 0, 0, 0) 70%
+  );
+  opacity: 0.75;
+}
+
+/* Icon */
+.hs-ico {
+  position: relative;
+  z-index: 2;
+  font-size: 20px;
+  stroke-width: 2.4;
+  color: #ffffff;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
+}
+
+/* Hover / Active */
+.hs-root:hover .hs-core,
+.hs-root.active .hs-core {
+  transform: scale(1.12);
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.35);
+}
+
+/* ====== THEMES POR TIPO ====== */
+
+/* NAV */
+.hs-root.hs--nav .hs-core {
+  background: linear-gradient(145deg, rgba(59, 130, 246, 0.95), rgba(29, 78, 216, 0.95));
+}
+.hs-root.hs--nav .hs-ring {
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.55), rgba(59, 130, 246, 0) 60%);
+}
+
+/* ELEMENT */
+.hs-root.hs--element .hs-core {
+  background: linear-gradient(145deg, rgba(249, 115, 22, 0.95), rgba(194, 65, 12, 0.95));
+}
+.hs-root.hs--element .hs-ring {
+  background: radial-gradient(circle, rgba(249, 115, 22, 0.55), rgba(249, 115, 22, 0) 60%);
+}
+
+/* INFO */
+.hs-root.hs--info .hs-core {
+  background: linear-gradient(145deg, rgba(16, 185, 129, 0.95), rgba(5, 150, 105, 0.95));
+}
+.hs-root.hs--info .hs-ring {
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.55), rgba(16, 185, 129, 0) 60%);
+}
+
+/* Preview */
+.hs-preview {
+  position: absolute;
+  bottom: 62px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.94);
+  width: 200px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 14px;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 100;
+  transition: all 220ms ease;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+
+.hs-root:hover .hs-preview,
+.hs-root.active .hs-preview {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) scale(1);
+  bottom: 66px;
+}
+
+/* Label */
+.hs-label {
+  position: absolute;
+  bottom: -36px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.88);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 7px 12px;
+  border-radius: 10px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 200ms ease;
+  pointer-events: none;
+  z-index: 101;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hs-root:hover .hs-label,
+.hs-root.active .hs-label {
+  opacity: 1;
+  visibility: visible;
+  bottom: -40px;
+}
+
+/* Pulse */
+@keyframes hs-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.75;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.35;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.75;
+  }
+}
+
+/* Importante para Pannellum */
+.pnlm-hotspot {
+  pointer-events: auto !important;
+}

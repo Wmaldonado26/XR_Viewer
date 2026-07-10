@@ -1,0 +1,190 @@
+/* === PANTALLA DE ADVERTENCIA MINIMALISTA === */
+
+.rotate-warning {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, 
+    var(--text-primary, #0f172a) 0%, 
+    var(--secondary-color, #64748b) 100%);
+  color: var(--background-color, #ffffff);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-slow, 350ms ease);
+  backdrop-filter: blur(8px);
+}
+
+.rotate-warning.show {
+  opacity: 1;
+  pointer-events: auto;
+  animation: fadeIn var(--transition-slow, 350ms ease);
+}
+
+.rotate-warning.hide {
+  opacity: 0;
+  pointer-events: none;
+  animation: fadeOut var(--transition-normal, 250ms ease);
+}
+
+/* === CONTENIDO PRINCIPAL === */
+.rotate-content {
+  text-align: center;
+  padding: var(--spacing-xl, 32px);
+  max-width: 400px;
+  position: relative;
+  
+  /* Glassmorphism minimalista */
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-xl, 16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1)), 
+              0 25px 50px -12px rgba(0, 0, 0, 0.4);
+  
+  animation: contentSlideIn var(--transition-slow, 350ms ease) 200ms both;
+}
+
+/* === ÍCONO DE ROTACIÓN === */
+.rotate-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--spacing-lg, 24px) auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rotate-icon::before {
+  content: '↻';
+  font-size: 3rem;
+  color: var(--background-color, #ffffff);
+  animation: rotate 2s linear infinite;
+  font-weight: 300;
+}
+
+/* === TÍTULO === */
+.rotate-title {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  margin-bottom: var(--spacing-md, 16px);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--background-color, #ffffff);
+  line-height: 1.2;
+}
+
+/* === TEXTO DESCRIPTIVO === */
+.rotate-text {
+  font-size: clamp(0.9rem, 2.5vw, 1rem);
+  opacity: 0.9;
+  margin-bottom: var(--spacing-lg, 24px);
+  line-height: 1.6;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* === MARCA COTECMAR === */
+.cotecmar-brand {
+  font-size: clamp(0.8rem, 2vw, 0.9rem);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: var(--spacing-md, 16px);
+  padding: var(--spacing-sm, 8px) var(--spacing-md, 16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-lg, 12px);
+  backdrop-filter: blur(10px);
+  display: inline-block;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: all var(--transition-normal, 250ms ease);
+}
+
+.cotecmar-brand:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--background-color, #ffffff);
+}
+
+/* === ANIMACIONES === */
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes contentSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes rotate {
+  0% { 
+    transform: rotate(0deg); 
+  }
+  100% { 
+    transform: rotate(360deg); 
+  }
+}
+
+/* === RESPONSIVE === */
+
+@media (max-width: 480px) {
+  .rotate-content {
+    padding: var(--spacing-lg, 24px);
+    max-width: 90%;
+    margin: var(--spacing-md, 16px);
+  }
+  
+  .rotate-icon {
+    width: 60px;
+    height: 60px;
+    margin-bottom: var(--spacing-md, 16px);
+  }
+  
+  .rotate-icon::before {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 320px) {
+  .rotate-content {
+    padding: var(--spacing-md, 16px);
+  }
+  
+  .rotate-title {
+    margin-bottom: var(--spacing-sm, 8px);
+  }
+  
+  .rotate-text {
+    margin-bottom: var(--spacing-md, 16px);
+  }
+}
+
+
+
+
+

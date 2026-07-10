@@ -1,0 +1,95 @@
+/* =========================================================
+   MiniMapWidget.css
+   ========================================================= */
+
+.mini-map-portal {
+  position: fixed;
+  top: 110px;
+  right: 24px;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+}
+
+.mini-map-portal.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* When minimized, slide to the right so only the toggle button remains visible */
+.mini-map-portal.minimized {
+  transform: translateX(calc(100% + 24px));
+}
+
+.mini-map-toggle {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #0033a0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+  position: absolute;
+  top: -16px;
+  left: -16px;
+  z-index: 10;
+}
+
+.mini-map-portal.minimized .mini-map-toggle {
+  /* Move toggle button outside when the container slides right */
+  left: -48px; 
+}
+
+.mini-map-toggle:hover {
+  background: #ffffff;
+  transform: scale(1.1);
+}
+
+.mini-map-widget {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: 160px;
+  height: 160px;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.3s ease;
+  display: block;
+}
+
+.mini-map-widget:hover {
+  transform: scale(1.02);
+}
+
+.mini-map-widget canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 12px;
+}
+
+.mini-map-widget div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: #64748b;
+  font-size: 13px;
+  text-align: center;
+  padding: 16px;
+}

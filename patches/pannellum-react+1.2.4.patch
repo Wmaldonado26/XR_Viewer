@@ -1,0 +1,60 @@
+diff --git a/node_modules/pannellum-react/es/pannellum/js/pannellum.js b/node_modules/pannellum-react/es/pannellum/js/pannellum.js
+index 1eb7f0c..c6863df 100644
+--- a/node_modules/pannellum-react/es/pannellum/js/pannellum.js
++++ b/node_modules/pannellum-react/es/pannellum/js/pannellum.js
+@@ -393,14 +393,25 @@ window.pannellum = function (window, document, undefined) {
+ 
+           var xhr = new XMLHttpRequest();
+           xhr.onloadend = function () {
++            // Si el request fue abortado (p.ej. por cambiar de escena rápidamente),
++            // `onloadend` se dispara con status 0 y response null.
++            // No debemos intentar parsear XMP en ese caso.
++            if (xhr.status === 0) {
++              return;
++            }
++
+             if (xhr.status != 200) {
+               // Display error if image can't be loaded
+               var a = document.createElement('a');
+               a.href = p;
+               a.textContent = a.href;
+               anError(config.strings.fileAccessError.replace('%s', a.outerHTML));
++              return;
+             }
+             var img = this.response;
++            if (!(img instanceof Blob)) {
++              return;
++            }
+             parseGPanoXMP(img);
+             infoDisplay.load.msg.innerHTML = '';
+           };
+diff --git a/node_modules/pannellum-react/lib/pannellum/js/pannellum.js b/node_modules/pannellum-react/lib/pannellum/js/pannellum.js
+index 8af7923..d730bf8 100644
+--- a/node_modules/pannellum-react/lib/pannellum/js/pannellum.js
++++ b/node_modules/pannellum-react/lib/pannellum/js/pannellum.js
+@@ -395,14 +395,25 @@ window.pannellum = function (window, document, undefined) {
+ 
+           var xhr = new XMLHttpRequest();
+           xhr.onloadend = function () {
++            // Si el request fue abortado (p.ej. por cambiar de escena rápidamente),
++            // `onloadend` se dispara con status 0 y response null.
++            // No debemos intentar parsear XMP en ese caso.
++            if (xhr.status === 0) {
++              return;
++            }
++
+             if (xhr.status != 200) {
+               // Display error if image can't be loaded
+               var a = document.createElement('a');
+               a.href = p;
+               a.textContent = a.href;
+               anError(config.strings.fileAccessError.replace('%s', a.outerHTML));
++              return;
+             }
+             var img = this.response;
++            if (!(img instanceof Blob)) {
++              return;
++            }
+             parseGPanoXMP(img);
+             infoDisplay.load.msg.innerHTML = '';
+           };

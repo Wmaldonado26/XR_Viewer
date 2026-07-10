@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id           String        @id
+  name         String
+  vesselType   String?
+  description  String?
+  thumbnail    String?
+  status       String?       @default("draft")
+  dateCreated  String?
+  dateModified String?
+  settings     String?
+  data         String?
+  images       Image[]
+  userProjects UserProject[]
+
+  @@map("projects")
+}
+
+model Image {
+  id           Int      @id @default(autoincrement())
+  projectId     String?
+  filename      String
+  url           String?
+  path          String?
+  type          String?
+  dateUploaded  String?
+  project       Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId], map: "idx_images_projectId")
+  @@map("images")
+}
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique(map: "idx_users_email")
+  phone        String?
+  passwordHash String
+  role         String   @default("user")
+  isActive     Boolean  @default(true)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  userProjects UserProject[]
+
+
+  @@map("users")
+}
+
+model UserProject {
+  userId    Int
+  projectId String
+  createdAt String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, projectId])
+  @@index([projectId], map: "idx_user_projects_projectId")
+  @@index([userId], map: "idx_user_projects_userId")
+  @@map("user_projects")
+}
+
+model LandingCard {
+  id          Int      @id @default(autoincrement())
+  layer       String
+  title       String
+  description String
+  imagePath   String
+  orderIndex  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("landing_cards")
+}

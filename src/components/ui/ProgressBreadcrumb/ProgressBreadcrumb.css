@@ -1,0 +1,69 @@
+/* =========================================================
+   ProgressBreadcrumb.css - Global Light Theme
+   ========================================================= */
+
+.progress-breadcrumb {
+  display: flex;
+  align-items: center;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+}
+
+.progress-breadcrumb__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.progress-breadcrumb__item.is-completed {
+  color: #0033a0;
+  cursor: pointer;
+}
+
+.progress-breadcrumb__item.is-completed:hover {
+  background: #f1f5f9;
+}
+
+.progress-breadcrumb__item.is-active {
+  color: #0f172a;
+  font-weight: 700;
+  background: #f8fafc;
+}
+
+.progress-breadcrumb__icon {
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.progress-breadcrumb__separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+}
+
+.progress-breadcrumb__line {
+  width: 12px;
+  height: 2px;
+  background-color: #cbd5e1;
+  border-radius: 2px;
+  transition: background-color 0.2s ease;
+}
+
+.progress-breadcrumb__separator.is-active .progress-breadcrumb__line {
+  background-color: #0033a0;
+}
+
+@media (max-width: 768px) {
+  .progress-breadcrumb__item span:not(.progress-breadcrumb__icon) {
+    display: none;
+  }
+}
