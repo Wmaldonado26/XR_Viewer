@@ -218,6 +218,13 @@ class ProjectService {
 
   async getProjectById(projectId) {
     if (!authService.isAuthenticated()) {
+      // Allow public access to the demo project
+      if (projectId === "arc-independiente-001" || projectId === "businu") {
+        const defaultProj = createCurrentProject();
+        defaultProj.name = projectId === "businu" ? "BUSINU" : defaultProj.name;
+        defaultProj.id = projectId;
+        return defaultProj;
+      }
       return null;
     }
 
@@ -231,6 +238,13 @@ class ProjectService {
         headers: authService.getAuthHeaders(),
       });
       if (response.status === 401 || response.status === 403 || response.status === 404) {
+        // Fallback for demo
+        if (projectId === "arc-independiente-001" || projectId === "businu") {
+          const defaultProj = createCurrentProject();
+          defaultProj.name = projectId === "businu" ? "BUSINU" : defaultProj.name;
+          defaultProj.id = projectId;
+          return defaultProj;
+        }
         return null;
       }
       if (!response.ok) throw new Error("Project not found");
@@ -238,6 +252,12 @@ class ProjectService {
       return normalizeProject(proj);
     } catch (e) {
       console.error("Error loading project from backend:", e);
+      if (projectId === "arc-independiente-001" || projectId === "businu") {
+        const defaultProj = createCurrentProject();
+        defaultProj.name = projectId === "businu" ? "BUSINU" : defaultProj.name;
+        defaultProj.id = projectId;
+        return defaultProj;
+      }
       return null;
     }
   }

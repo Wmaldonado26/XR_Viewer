@@ -41,10 +41,10 @@ async function uploadToCloudinary(localPath) {
 
 async function migrate() {
   console.log("🚀 Iniciando migración de datos...");
-  const dbPath = path.join(__dirname, 'prisma', 'dev.db');
+  const dbPath = path.join(__dirname, 'prisma', 'cotecmar.db');
   
   if (!fs.existsSync(dbPath)) {
-    console.error("❌ No se encontró dev.db en prisma/dev.db");
+    console.error("❌ No se encontró cotecmar.db en prisma/cotecmar.db");
     process.exit(1);
   }
 
@@ -53,29 +53,40 @@ async function migrate() {
 
   try {
     console.log("\n1️⃣ Migrando Usuarios...");
-    const users = sqlite.prepare('SELECT * FROM User').all();
+    const users = sqlite.prepare('SELECT * FROM users').all();
     for (const user of users) {
       const exists = await prisma.user.findUnique({ where: { email: user.email } });
       if (!exists) {
-        await prisma.user.create({ data: user });
+        const userData = {
+          ...user,
+          isActive: user.isActive === 1,
+          createdAt: new Date(user.createdAt),
+          updatedAt: new Date(user.updatedAt)
+        };
+        await prisma.user.create({ data: userData });
       }
     }
     console.log(`✅ ${users.length} Usuarios procesados.`);
 
     console.log("\n2️⃣ Migrando Tarjetas de Landing...");
-    const cards = sqlite.prepare('SELECT * FROM LandingCard').all();
+    const cards = sqlite.prepare('SELECT * FROM landing_cards').all();
     for (const card of cards) {
       const exists = await prisma.landingCard.findUnique({ where: { id: card.id } });
       if (!exists) {
         card.image = await uploadToCloudinary(card.image);
-        await prisma.landingCard.create({ data: card });
+        const cardData = {
+          ...card,
+          createdAt: new Date(card.createdAt),
+          updatedAt: new Date(card.updatedAt)
+        };
+        await prisma.landingCard.create({ data: cardData });
       }
     }
     console.log(`✅ ${cards.length} Tarjetas procesadas.`);
 
     console.log("\n3️⃣ Migrando Imágenes sueltas...");
     try {
-      const images = sqlite.prepare('SELECT * FROM Image').all();
+      const images = sqlite.prepare('SELECT * FROM images').all();
       for (const img of images) {
         const exists = await prisma.image.findUnique({ where: { id: img.id } });
         if (!exists) {
@@ -89,7 +100,7 @@ async function migrate() {
     }
 
     try {
-      const projects = sqlite.prepare('SELECT * FROM Project').all();
+      const projects = sqlite.prepare('SELECT * FROM projects').all();
       console.log("\n4️⃣ Migrando Proyectos...");
       for (const proj of projects) {
         const exists = await prisma.project.findUnique({ where: { id: proj.id } });

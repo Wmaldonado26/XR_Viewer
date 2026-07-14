@@ -6,8 +6,11 @@
 ---------------------------------------------- */
 .landing-page {
   --c-black: #061433; /* Deep navy blue, replacing pure black */
+  --c-black-rgb: 6, 20, 51;
   --c-white: #ffffff;
+  --c-card-shadow: 0 -20px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(43, 83, 152, 0.1);
   --c-gray-dark: #0a1120; /* Deep blueish gray */
+  --c-gray-dark-rgb: 10, 17, 32;
   --c-gray-mid: #1d293f;
   --c-gray-light: #8fa7d6; /* Light blueish gray */
   --c-brand: #2B5398; /* Cotecmar Corporate Blue */
@@ -25,8 +28,11 @@
 ---------------------------------------------- */
 .landing-page.light-theme {
   --c-black: #f8fafc; /* Fondo muy claro (casi blanco) */
+  --c-black-rgb: 248, 250, 252;
   --c-white: #1e3a8a; /* Texto principal en azul corporativo fuerte */
+  --c-card-shadow: 0 -15px 30px rgba(30, 58, 138, 0.08), 0 0 20px rgba(30, 58, 138, 0.05);
   --c-gray-dark: #e2e8f0; 
+  --c-gray-dark-rgb: 226, 232, 240;
   --c-gray-mid: #cbd5e1;
   --c-gray-light: #2B5398; /* Texto secundario en azul corporativo clásico */
   --c-brand: #1e3a8a; /* Cotecmar Corporate Blue */
@@ -106,10 +112,10 @@
 }
 
 .landing-btn:hover {
-  background: var(--c-brand);
+  background: transparent;
   border-color: var(--c-brand);
-  color: var(--c-white);
-  box-shadow: 0 0 15px rgba(43, 83, 152, 0.6);
+  color: var(--c-brand);
+  box-shadow: 0 0 15px rgba(43, 83, 152, 0.4);
 }
 
 /* ---------------------------------------------
@@ -256,7 +262,7 @@
 ---------------------------------------------- */
 .landing-stack-section {
   padding-top: 0px;
-  padding-bottom: 120px;
+  padding-bottom: 0px;
   background-color: var(--c-black);
 }
 
@@ -277,8 +283,7 @@
   --reverse-index: calc(var(--numcards) - var(--index0));
   --reverse-index0: calc(var(--reverse-index) - 1);
   position: sticky;
-  top: 90px;
-  padding-top: calc(var(--index0) * 22px);
+  top: 140px;
 }
 
 .landing-stack-card-content {
@@ -292,12 +297,9 @@
   background: var(--c-gray-dark); /* Azul oscuro profundo de Cotecmar */
   border-top: 1px solid rgba(43, 83, 152, 0.4);
   border-bottom: 1px solid rgba(43, 83, 152, 0.4);
-  box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(43, 83, 152, 0.1);
+  box-shadow: var(--c-card-shadow);
   overflow: hidden;
   transform-origin: 50% 0%;
-  animation: landing-stack-scale linear forwards;
-  animation-timeline: --landing-stack-scroll;
-  animation-range: exit-crossing var(--start-range) exit-crossing var(--end-range);
 }
 
 /* ---------------------------------------------
@@ -320,7 +322,7 @@
   right: -2px;
   width: calc(30% + 2px);
   height: 100%;
-  background: linear-gradient(to right, rgba(10, 17, 32, 0) 0%, rgba(10, 17, 32, 1) 85%, rgba(10, 17, 32, 1) 100%);
+  background: linear-gradient(to right, rgba(var(--c-gray-dark-rgb), 0) 0%, rgba(var(--c-gray-dark-rgb), 1) 85%, rgba(var(--c-gray-dark-rgb), 1) 100%);
   pointer-events: none;
 }
 
@@ -341,7 +343,7 @@
   left: -2px;
   width: calc(30% + 2px);
   height: 100%;
-  background: linear-gradient(to left, rgba(10, 17, 32, 0) 0%, rgba(10, 17, 32, 1) 85%, rgba(10, 17, 32, 1) 100%);
+  background: linear-gradient(to left, rgba(var(--c-gray-dark-rgb), 0) 0%, rgba(var(--c-gray-dark-rgb), 1) 85%, rgba(var(--c-gray-dark-rgb), 1) 100%);
   pointer-events: none;
 }
 
@@ -387,18 +389,13 @@
   display: block;
 }
 
-@keyframes landing-stack-scale {
-  to {
-    transform: scale(calc(1.08 - (0.08 * var(--reverse-index0))));
-  }
-}
 
 /* ---------------------------------------------
    Responsive
 ---------------------------------------------- */
 @media (max-width: 980px) {
   .landing-stack-card {
-    top: 96px;
+    top: 130px;
   }
   .landing-stack-card-content {
     grid-template-columns: 1fr;
@@ -429,8 +426,7 @@
   }
 
   .landing-stack-card {
-    top: 90px;
-    padding-top: calc(var(--index0) * 14px);
+    top: 85px;
   }
 
   .landing-stack-card-copy {

@@ -56,7 +56,10 @@ const ProjectViewerWrapper = () => {
       <ExperienceSelector
         onExperienceSelect={handleExperienceSelect}
         onViewDetails={handleViewDetails}
-        onBackToManager={() => navigate(-1)}
+        onBackToManager={() => {
+          const user = authService.getCurrentUser();
+          navigate((user?.role === "admin" || user?.role === "project_admin") ? "/admin" : "/gallery");
+        }}
         onAccessAdmin={() => navigate("/admin/login")}
       />
     </>
@@ -300,6 +303,14 @@ const AppRoutes = () => {
           <PrivateRoute roles={["admin", "project_admin", "user"]}>
             <ExperienceViewerWrapper />
           </PrivateRoute>
+        }
+      />
+      <Route
+        path="/public-tour/:projectId/:experienceId"
+        element={
+          <PublicRoute redirectByRole={false}>
+            <ExperienceViewerWrapper />
+          </PublicRoute>
         }
       />
       <Route

@@ -182,16 +182,7 @@ const LandingPage = () => {
           <div 
             className={`absolute bg-transparent flex gap-4 transition-all duration-300 top-full right-0 mt-2 flex-col lg:top-1/2 lg:right-full lg:mt-0 lg:mr-4 lg:flex-row ${isMenuOpen ? 'opacity-100 visible translate-y-0 translate-x-0 lg:-translate-y-1/2' : 'opacity-0 invisible -translate-y-2 translate-x-0 lg:translate-x-4 lg:-translate-y-1/2'}`}
           >
-            <button 
-              className="landing-btn w-48 justify-center"
-              onClick={() => {
-                setIsMenuOpen(false);
-                navigate("/login");
-              }}
-            >
-              Acceso
-            </button>
-            
+
             <button 
               className="landing-btn w-48 justify-center" 
               onClick={() => {
@@ -282,7 +273,16 @@ const LandingPage = () => {
                     <div className="landing-stack-card-copy">
                       <span className="landing-eyebrow mb-4 block">Capa {card.layer}</span>
                       <h3>{card.title}</h3>
-                      <p>{card.description}</p>
+                      <p className="mb-6">{card.description}</p>
+                      <button 
+                        className="landing-btn mt-6"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate("/public-tour/businu/bridge");
+                        }}
+                      >
+                        Recorrido 360
+                      </button>
                     </div>
                     <div className="landing-stack-card-media">
                         <img

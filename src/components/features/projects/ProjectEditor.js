@@ -1180,7 +1180,7 @@ const ProjectEditor = ({ projectId, onClose, onSave }) => {
     <div className="project-editor modern-editor">
       {/* HEADER PREMIUM */}
       <DynamicNavbar
-        onBack={handleClose}
+        showBackButton={false}
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <h1 style={{ fontSize: '18px', margin: 0 }}>{project.name}</h1>
@@ -1262,7 +1262,7 @@ const ProjectEditor = ({ projectId, onClose, onSave }) => {
       <div className="editor-content-modern" ref={contentRef}>
         <div style={{ width: '100%', marginBottom: '24px', display: 'flex', justifyContent: 'flex-start' }}>
           <button 
-            onClick={() => navigate(-1)} 
+            onClick={() => navigate("/admin")} 
             style={{ padding: '10px 20px', borderRadius: '10px', background: '#ffffff', color: '#334155', border: '1px solid rgba(0,0,0,0.1)', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}
           >
             <FaArrowLeft /> Volver

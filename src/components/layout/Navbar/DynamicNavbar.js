@@ -58,10 +58,9 @@ const DynamicNavbar = ({
       onBack();
       return;
     }
-    if (window.history.length > 1) {
-      navigate(-1);
-    } else if (projectId) {
-      navigate(`/project/${projectId}`);
+    const role = currentUser?.role;
+    if (role === "admin" || role === "project_admin") {
+      navigate("/admin");
     } else {
       navigate("/gallery");
     }
