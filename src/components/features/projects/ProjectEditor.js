@@ -39,6 +39,10 @@ const ProjectEditor = ({ projectId, onClose, onSave }) => {
   const [sceneFilter, setSceneFilter] = useState("all"); 
   const [showSceneFilterDropdown, setShowSceneFilterDropdown] = useState(false);
 
+  // Bulk Delete States
+  const [selectedZonesToDelete, setSelectedZonesToDelete] = useState([]);
+  const [selectedScenesToDelete, setSelectedScenesToDelete] = useState([]);
+
   // =========================
   // MAP TAB (MAPA POR ZONA)
   // =========================
@@ -467,6 +471,58 @@ const ProjectEditor = ({ projectId, onClose, onSave }) => {
     });
   };
 
+  const handleBulkDeleteZones = () => {
+    if (selectedZonesToDelete.length === 0) return;
+    setModal({
+      isOpen: true,
+      type: "danger",
+      title: "¿Eliminar zonas seleccionadas?",
+      message: `Vas a eliminar ${selectedZonesToDelete.length} zona(s). Esta acción no se puede deshacer.`,
+      onConfirm: () => {
+        setProject((prev) => {
+          const nextExperiences = (prev.experiences || []).filter(
+            (z) => !selectedZonesToDelete.includes(z.id)
+          );
+
+          const nextMapByZone = { ...(prev.settings?.mapByZone || {}) };
+          selectedZonesToDelete.forEach((id) => {
+            delete nextMapByZone[id];
+          });
+
+          const nextScenes = { ...(prev.scenes || {}) };
+          selectedZonesToDelete.forEach((id) => {
+            Object.keys(nextScenes).forEach((k) => {
+              const m = nextScenes[k]?.map;
+              if (m?.zoneId === id) {
+                nextScenes[k] = { ...nextScenes[k], map: undefined };
+              }
+            });
+          });
+
+          return {
+            ...prev,
+            experiences: nextExperiences,
+            scenes: nextScenes,
+            settings: { ...(prev.settings || {}), mapByZone: nextMapByZone },
+          };
+        });
+
+        if (selectedZonesToDelete.includes(mapZoneId)) {
+          setMapZoneId("");
+          setMapSelectedSceneKey("");
+          setMapPlacingMode(false);
+        }
+
+        setSelectedZonesToDelete([]);
+        setHasChanges(true);
+        setModal((m) => ({ ...m, isOpen: false }));
+      },
+      showCancelButton: true,
+      confirmText: "Eliminar seleccionadas",
+      cancelText: "Cancelar",
+    });
+  };
+
   // HANDLERS - Scenes
   const handleAddScene = () => {
     const sceneKey = `scene_${Date.now()}`;
@@ -519,6 +575,31 @@ const ProjectEditor = ({ projectId, onClose, onSave }) => {
       },
       showCancelButton: true,
       confirmText: "Eliminar",
+      cancelText: "Cancelar",
+    });
+  };
+
+  const handleBulkDeleteScenes = () => {
+    if (selectedScenesToDelete.length === 0) return;
+    setModal({
+      isOpen: true,
+      type: "danger",
+      title: "¿Eliminar escenas seleccionadas?",
+      message: `Vas a eliminar ${selectedScenesToDelete.length} escena(s) y todos sus hotspots. Esta acción no se puede deshacer.`,
+      onConfirm: () => {
+        setProject((prev) => {
+          const newScenes = { ...(prev.scenes || {}) };
+          selectedScenesToDelete.forEach((key) => {
+            delete newScenes[key];
+          });
+          return { ...prev, scenes: newScenes };
+        });
+        setSelectedScenesToDelete([]);
+        setHasChanges(true);
+        setModal((m) => ({ ...m, isOpen: false }));
+      },
+      showCancelButton: true,
+      confirmText: "Eliminar seleccionadas",
       cancelText: "Cancelar",
     });
   };
@@ -1436,7 +1517,18 @@ const ProjectEditor = ({ projectId, onClose, onSave }) => {
                 </div>
 
                 {/* Lista de zonas */}
-                <div className="flex-1 overflow-y-auto p-3 space-y-2">
+                <div className="flex-1 overflow-y-auto p-3 space-y-2 relative">
+                  {selectedZonesToDelete.length > 0 && (
+                    <div className="p-2 border-b border-slate-200 bg-red-50 flex justify-between items-center rounded-lg mb-2">
+                      <span className="text-sm font-semibold text-red-600">{selectedZonesToDelete.length} seleccionadas</span>
+                      <button 
+                        onClick={() => handleBulkDeleteZones()}
+                        className="text-white bg-red-600 hover:bg-red-700 px-3 py-1 rounded-lg text-xs font-bold transition-colors"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  )}
                   {(project.experiences || []).filter(z => (z.name || "").toLowerCase().includes(zoneSearchQuery.toLowerCase())).map((zone, index) => {
                     const isActive = selectedZoneId === zone.id;
                     const scenesCount = (scenesByZone[zone.id] || []).length;
@@ -1451,6 +1543,16 @@ const ProjectEditor = ({ projectId, onClose, onSave }) => {
                         }`}
                       >
                         <div className="flex items-center gap-3 truncate">
+                          <input 
+                            type="checkbox" 
+                            checked={selectedZonesToDelete.includes(zone.id)}
+                            onChange={(e) => {
+                               e.stopPropagation();
+                               if (e.target.checked) setSelectedZonesToDelete([...selectedZonesToDelete, zone.id]);
+                               else setSelectedZonesToDelete(selectedZonesToDelete.filter(id => id !== zone.id));
+                            }}
+                            className="w-4 h-4 cursor-pointer accent-red-600 rounded"
+                          />
                           <FaShip className={`flex-shrink-0 ${isActive ? "text-blue-100" : "text-slate-400"}`} />
                           <span className="font-semibold text-sm truncate">{zone.name || "Zona sin nombre"}</span>
                         </div>
@@ -1562,7 +1664,14 @@ const ProjectEditor = ({ projectId, onClose, onSave }) => {
                          </div>
 
                          {/* Acción Principal */}
-                         {selectedZoneId === "unassigned" ? (
+                         {selectedScenesToDelete.length > 0 ? (
+                           <button 
+                             onClick={() => handleBulkDeleteScenes()}
+                             className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl text-sm font-semibold hover:bg-red-700 transition-all shadow-sm cursor-pointer m-0"
+                           >
+                             <FaTrash /> Eliminar {selectedScenesToDelete.length}
+                           </button>
+                         ) : selectedZoneId === "unassigned" ? (
                            <button className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-xl text-sm font-semibold hover:bg-slate-700 transition-all shadow-sm" onClick={handleAddScene}>
                              <FaPlus /> Añadir escena
                            </button>
@@ -1609,7 +1718,19 @@ const ProjectEditor = ({ projectId, onClose, onSave }) => {
                          return (
                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                              {scenesToRender.map(({sceneKey, scene}) => (
-                               <div key={sceneKey} className="group bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col">
+                               <div key={sceneKey} className="group bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col relative">
+                                 {/* Checkbox for bulk delete */}
+                                 <div className="absolute top-2 right-2 z-20">
+                                   <input 
+                                     type="checkbox"
+                                     checked={selectedScenesToDelete.includes(sceneKey)}
+                                     onChange={(e) => {
+                                        if (e.target.checked) setSelectedScenesToDelete([...selectedScenesToDelete, sceneKey]);
+                                        else setSelectedScenesToDelete(selectedScenesToDelete.filter(id => id !== sceneKey));
+                                     }}
+                                     className="w-5 h-5 cursor-pointer accent-red-600 drop-shadow-md rounded"
+                                   />
+                                 </div>
                                  {/* Miniatura */}
                                  <div className="relative aspect-video bg-slate-100 overflow-hidden">
                                    <div className="absolute top-2 left-2 z-10 bg-black/60 backdrop-blur-sm text-white text-xs font-bold px-2 py-1 rounded-md flex items-center gap-1">
