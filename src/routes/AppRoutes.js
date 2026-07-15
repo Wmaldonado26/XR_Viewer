@@ -56,10 +56,7 @@ const ProjectViewerWrapper = () => {
       <ExperienceSelector
         onExperienceSelect={handleExperienceSelect}
         onViewDetails={handleViewDetails}
-        onBackToManager={() => {
-          const user = authService.getCurrentUser();
-          navigate((user?.role === "admin" || user?.role === "project_admin") ? "/admin" : "/gallery");
-        }}
+        onBackToManager={() => navigate(-1)}
         onAccessAdmin={() => navigate("/admin/login")}
       />
     </>
@@ -93,7 +90,7 @@ const ProjectDetailsWrapper = () => {
     }
   }, [projectId]);
 
-  return <ProjectDetails onBack={() => navigate(`/project/${projectId}`)} />;
+  return <ProjectDetails onBack={() => navigate(-1)} />;
 };
 
 const LoginWrapper = () => {

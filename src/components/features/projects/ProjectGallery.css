@@ -555,7 +555,7 @@
 
 .card-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;
   padding-top: 14px;
   border-top: 1px solid #f1f5f9;

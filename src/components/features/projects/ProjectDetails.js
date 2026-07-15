@@ -25,7 +25,14 @@ const ProjectDetails = ({ onBack, onLogout, darkMode, onToggleDarkMode }) => {
 
   // Volver a la vista del proyecto
   const handleBack = () => {
-    navigate('/gallery');
+    const user = authService.getCurrentUser();
+    if (window.history.state && window.history.state.idx > 0) {
+      navigate(-1);
+    } else if (user?.role === 'admin' || user?.role === 'project_admin') {
+      navigate('/admin');
+    } else {
+      navigate('/gallery');
+    }
   };
 
 
@@ -77,19 +84,20 @@ const ProjectDetails = ({ onBack, onLogout, darkMode, onToggleDarkMode }) => {
         subtitle={project.vesselType || "Project Details"}
       />
 
-      <div style={{ width: '100%', padding: '0 40px', marginTop: '-12px', display: 'flex', justifyContent: 'flex-start' }}>
-        <button 
-          onClick={handleBack}
-          style={{ padding: '10px 20px', borderRadius: '10px', background: '#ffffff', color: '# 334155', border: '1px solid rgba(0,0,0,0.1)', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}
-        >
-          <FaArrowLeft /> Volver
-        </button>
-      </div>
-
       <div className="project-details-container bg-slate-50 min-h-screen py-10">
+        
+        {/* Full-width container for the back button to sit on the far left */}
+        <div style={{ width: '100%', padding: '0 40px', marginBottom: '24px', display: 'flex', justifyContent: 'flex-start' }}>
+          <button 
+            onClick={handleBack}
+            style={{ padding: '10px 20px', borderRadius: '10px', background: '#ffffff', color: '#334155', border: '1px solid rgba(0,0,0,0.1)', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}
+          >
+            <FaArrowLeft /> Volver
+          </button>
+        </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          
+
           {/* Main Info Card */}
           <div className="bg-white rounded-[2rem] shadow-sm p-6 lg:p-8 grid grid-cols-1 lg:grid-cols-2 gap-10">
             
@@ -175,7 +183,7 @@ const ProjectDetails = ({ onBack, onLogout, darkMode, onToggleDarkMode }) => {
 
               <div className="mt-10">
                 <button 
-                  onClick={() => navigate(`/viewer/${projectId}`)}
+                  onClick={() => navigate(`/project/${projectId}`)}
                   className="inline-flex items-center justify-center px-8 py-3.5 bg-blue-600 text-white rounded-full font-bold shadow-lg shadow-blue-600/30 hover:bg-blue-700 hover:shadow-blue-600/50 hover:-translate-y-0.5 transition-all w-fit"
                 >
                   Iniciar recorrido 360°
