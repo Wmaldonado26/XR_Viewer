@@ -82,7 +82,7 @@ const DynamicNavbar = ({
               </button>
             )}
             
-            <img src={cotecmarLogo} alt="COTECMAR" className="manager-logo" style={{width: '110px', height: 'auto', flexShrink: 0, marginLeft: '-5px', transition: 'all 0.5s'}} />
+            <img src={cotecmarLogo} alt="COTECMAR" className="manager-logo" onClick={() => navigate('/')} style={{width: '110px', height: 'auto', flexShrink: 0, marginLeft: '-5px', transition: 'all 0.5s', cursor: 'pointer'}} />
           </div>
 
           <div className="manager-header-middle" style={{flex: 1, display: 'flex', justifyContent: 'center', padding: '0 24px'}}>
