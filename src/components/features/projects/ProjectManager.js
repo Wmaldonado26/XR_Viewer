@@ -345,11 +345,6 @@ const ProjectManager = ({
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="toolbar-filters">
-              <button className="btn-filter">
-                <FaFilter /> Filtrar
-              </button>
-            </div>
             <button className="btn-primary" onClick={onCreateNew}>
               <FaPlus /> Nuevo Proyecto
             </button>

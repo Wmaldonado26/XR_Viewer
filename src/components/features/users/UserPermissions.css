@@ -9,10 +9,10 @@
 
 /* Main content structure */
 .user-permissions__content {
-  max-width: 1350px;
+  max-width: 1400px;
   width: 100%;
   margin: 12px auto 32px auto;
-  padding: 0 32px;
+  padding: 0 40px;
   display: grid;
   grid-template-columns: 380px 1fr;
   gap: 32px;
@@ -21,16 +21,16 @@
 
 /* Sidebar styles */
 .user-permissions__sidebar {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02), 0 10px 30px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(226, 232, 240, 0.9);
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-height: calc(100vh - 180px);
-  position: sticky;
-  top: 100px;
+  max-height: calc(100vh - 100px);
 }
 
 .search-bar {
@@ -85,21 +85,23 @@
 }
 
 .user-item-card {
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #f3f4f6;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #f1f5f9;
   background: #ffffff;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .user-item-card:hover {
-  background: #f9fafb;
-  border-color: #e5e7eb;
-  transform: translateY(-1px);
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
 }
 
 .user-item-card.selected {
@@ -150,10 +152,12 @@
 
 /* Main Panel styles */
 .user-permissions__main-panel {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02), 0 10px 30px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(226, 232, 240, 0.9);
   display: flex;
   flex-direction: column;
   min-height: calc(100vh - 180px);
@@ -265,20 +269,23 @@
 
 .vessel-checkbox-card {
   position: relative;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 14px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 16px 20px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   background: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .vessel-checkbox-card:hover {
-  border-color: #3b82f6;
-  background: #f9fafb;
+  border-color: #93c5fd;
+  background: #f8fafc;
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
 }
 
 .vessel-checkbox-card.checked {
@@ -346,22 +353,22 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #1d4ed8;
-  color: #ffffff;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: white;
   border: none;
   padding: 12px 24px;
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.25);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
 }
 
 .save-permissions-btn:hover:not(:disabled) {
-  background: #1e40af;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(29, 78, 216, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(2, 132, 199, 0.4);
+  background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
 }
 
 .save-permissions-btn:disabled {

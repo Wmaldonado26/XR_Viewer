@@ -129,16 +129,6 @@ const ProjectDetails = ({ onBack, onLogout, darkMode, onToggleDarkMode }) => {
                         </button>
                       </>
                     )}
-                    <a 
-                      href={galleryImages[activeImageIndex]} 
-                      download 
-                      target="_blank" 
-                      rel="noreferrer"
-                      className="absolute top-4 right-4 w-10 h-10 bg-white/90 hover:bg-white rounded-full flex items-center justify-center shadow-sm text-slate-600 transition-all"
-                      title="Descargar imagen"
-                    >
-                      <FaDownload />
-                    </a>
                   </>
                 ) : (
                   <div className="text-slate-400 flex flex-col items-center">

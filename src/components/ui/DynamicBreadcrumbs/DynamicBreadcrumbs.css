@@ -99,23 +99,28 @@ body.dark-mode .dropdown-item-subtitle { color: #94a3b8; }
 
 /* Responsive Adjustments (Non-invasive) */
 @media (max-width: 1024px) and (orientation: portrait), (max-width: 768px) {
-  .breadcrumb-container { padding: 6px 12px; max-width: 100%; overflow-x: auto; }
-  .breadcrumb-item { font-size: 13px; white-space: nowrap; }
-  .breadcrumb-container::-webkit-scrollbar { display: none; }
+  .breadcrumb-container {
+    padding: 8px 16px;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    border-radius: 999px; /* Mantener la forma de píldora */
+  }
   
-  /* Solo mostrar los dos últimos elementos en celular */
-  .breadcrumb-list li {
-    display: none;
+  .breadcrumb-list {
+    flex-wrap: nowrap; /* Evitar que salten de línea en celular */
   }
-  .breadcrumb-list li:nth-last-child(-n+3) {
-    display: flex;
+
+  .breadcrumb-item {
+    font-size: 13px;
+    white-space: nowrap;
   }
-  .breadcrumb-list li:nth-last-child(3)::before {
-    content: "« ";
-    margin-right: 6px;
-    font-size: 16px;
-    opacity: 0.8;
+
+  .breadcrumb-container::-webkit-scrollbar {
+    display: none; /* Ocultar barra de desplazamiento */
   }
+  
   .breadcrumb-dropdown-menu {
     position: fixed;
     top: 50%;

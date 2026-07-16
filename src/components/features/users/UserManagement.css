@@ -8,9 +8,10 @@
 }
 
 .user-management__content {
-  max-width: 1350px;
+  max-width: 1400px;
+  width: 100%;
   margin: 12px auto 32px auto;
-  padding: 0 32px;
+  padding: 0 40px;
   display: grid;
   grid-template-columns: 400px 1fr;
   gap: 32px;
@@ -20,17 +21,39 @@
 /* === PANELS === */
 .user-management__form-panel,
 .user-management__list-panel {
-  background: white;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02), 0 10px 30px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.user-management__form-panel::before,
+.user-management__list-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #0284c7, #3b82f6);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 10;
 }
 
 .user-management__form-panel:hover,
 .user-management__list-panel:hover {
-  box-shadow: 0 8px 24px rgba(0, 61, 130, 0.08);
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px -5px rgba(0, 61, 130, 0.08);
+  border-color: transparent;
+}
+
+.user-management__form-panel:hover::before,
+.user-management__list-panel:hover::before {
+  opacity: 1;
 }
 
 .panel-title {
@@ -75,26 +98,27 @@
 .user-form input[type="password"],
 .user-form select {
   width: 100%;
-  padding: 12px 16px;
-  border-radius: 10px;
+  padding: 14px 16px;
+  border-radius: 12px;
   border: 2px solid #e2e8f0;
   background: #f8fafc;
   font-size: 15px;
   color: #0f172a;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   font-family: inherit;
   outline: none;
 }
 
 .user-form input:focus,
 .user-form select:focus {
-  border-color: #3b82f6;
-  background: white;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  border-color: #0284c7;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.15);
 }
 
 .user-form input::placeholder {
   color: #94a3b8;
+  font-weight: 400;
 }
 
 /* Checkboxes */
@@ -251,16 +275,16 @@
 }
 
 .primary-btn {
-  background: linear-gradient(135deg, #0033a0 0%, #002277 100%);
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
   color: white;
-  box-shadow: 0 4px 12px rgba(0, 61, 130, 0.2);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
   flex: 1;
 }
 
 .primary-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 61, 130, 0.3);
-  background: linear-gradient(135deg, #002960 0%, #0033a0 100%);
+  box-shadow: 0 8px 20px rgba(2, 132, 199, 0.4);
+  background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
 }
 
 .secondary-btn {
@@ -304,22 +328,40 @@
 }
 
 .user-list-item {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 16px;
   padding: 16px 24px;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02), 0 10px 15px rgba(0, 0, 0, 0.03);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.user-list-item::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: linear-gradient(to bottom, #0284c7, #3b82f6);
+  opacity: 0;
+  transition: opacity 0.4s ease;
 }
 
 .user-list-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06);
-  border-color: #cbd5e1;
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.08);
+  border-color: transparent;
+  background: #ffffff;
+}
+
+.user-list-item:hover::before {
+  opacity: 1;
 }
 
 .user-info-section {
