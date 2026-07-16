@@ -171,7 +171,7 @@ const ProjectGallery = () => {
         }
       />
 
-      <div style={{ width: '100%', padding: '0 40px', marginTop: '-12px', display: 'flex', justifyContent: 'flex-start' }}>
+      <div style={{ width: '100%', padding: '0 40px', marginTop: '-64px', marginBottom: '16px', display: 'flex', justifyContent: 'flex-start', position: 'relative', zIndex: 10 }}>
         {(currentUser?.role === 'admin' || currentUser?.role === 'project_admin') && (
           <button 
             onClick={() => navigate('/admin')} 
@@ -252,20 +252,18 @@ const ProjectGallery = () => {
                   {project.description?.length > 100 ? '...' : ''}
                 </p>
                 
-                <div className="card-footer">
-                  {/* <div className="card-stats">
-                    <span className="stat">
-                      <FaEye /> {project.experiences?.length || 0} zonas
-                    </span>
-                    <span className="stat">
-                      {Object.keys(project.scenes || {}).length} escenas
-                    </span>
-                  </div> */}
+                <div className="card-footer" style={{ display: 'flex', justifyItems: 'center', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
                   <button
-                  className="btn-view"
-                  onClick={() => handlePagesInformationClick(project.id)}
-                   >
-                    Mas Información <FaArrowRight />
+                    className="btn-view btn-secondary"
+                    onClick={() => handlePagesInformationClick(project.id)}
+                  >
+                    Mas Información
+                  </button>
+                  <button
+                    className="btn-view btn-primary"
+                    onClick={() => handleProjectClick(project.id)}
+                  >
+                    Iniciar Recorrido 360° <FaArrowRight />
                   </button>
                 </div>
               </div>

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import "./ExperienceSelector.css";
 import "../projects/ProjectManager.css";
 import cotecmarLogo from "../../../assets/images/logo.png";
-import { FaMapMarkerAlt, FaInfoCircle, FaImage, FaList, FaThLarge, FaSearch, FaFilter, FaArrowRight, FaShip, FaSignOutAlt, FaUserShield, FaChevronRight, FaPlay, FaBars, FaTimes, FaCog, FaLock, FaUsers, FaShieldAlt, FaKey, FaChevronDown, FaUserCircle, FaMoon, FaSun, FaImages, FaArrowLeft, FaAnchor, FaWater, FaLayerGroup, FaFolderOpen } from "react-icons/fa";
+import { FaMapMarkerAlt, FaInfoCircle, FaImage, FaList, FaThLarge, FaSearch, FaFilter, FaArrowRight, FaShip, FaSignOutAlt, FaUserShield, FaChevronRight, FaChevronLeft, FaPlay, FaBars, FaTimes, FaCog, FaLock, FaUsers, FaShieldAlt, FaKey, FaChevronDown, FaUserCircle, FaMoon, FaSun, FaImages, FaArrowLeft, FaAnchor, FaWater, FaLayerGroup, FaFolderOpen } from "react-icons/fa";
 import DynamicNavbar from "../../layout/Navbar/DynamicNavbar";
 import DynamicBreadcrumbs from "../../ui/DynamicBreadcrumbs/DynamicBreadcrumbs";
 import projectService from "../../../api/services/projectService";
@@ -21,6 +21,11 @@ const ExperienceSelector = ({ onExperienceSelect, onViewDetails, onBackToManager
   const [project, setProject] = useState(null);
   const [allProjects, setAllProjects] = useState([]);
   const [showSidebar, setShowSidebar] = useState(false);
+
+  // Pagination & Search
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const itemsPerPage = 6;
 
   useEffect(() => {
     (async () => {
@@ -63,6 +68,25 @@ const ExperienceSelector = ({ onExperienceSelect, onViewDetails, onBackToManager
 
     onExperienceSelect(target);
   };
+
+  const filteredExperiences = useMemo(() => {
+    if (!searchQuery.trim()) return experiences;
+    return experiences.filter(exp => 
+      exp.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [experiences, searchQuery]);
+
+  const paginatedExperiences = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredExperiences.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredExperiences, currentPage]);
+
+  const totalPages = Math.ceil(filteredExperiences.length / itemsPerPage);
+
+  // Reset page when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
 
   return (
@@ -225,7 +249,13 @@ const ExperienceSelector = ({ onExperienceSelect, onViewDetails, onBackToManager
           
           <div className="search-container">
             <FaSearch className="search-icon" />
-            <input type="text" placeholder="Buscar zonas..." className="search-input" />
+            <input 
+              type="text" 
+              placeholder="Buscar zonas..." 
+              className="search-input" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
 
           <div className="view-toggle-container">
@@ -242,7 +272,7 @@ const ExperienceSelector = ({ onExperienceSelect, onViewDetails, onBackToManager
 
         {/* Zones Grid */}
         <div className="experience-grid">
-          {experiences.map((exp) => {
+          {paginatedExperiences.map((exp) => {
             const IconComponent = ICONS[exp.iconName] || FaMapMarkerAlt;
 
             return (
@@ -257,12 +287,43 @@ const ExperienceSelector = ({ onExperienceSelect, onViewDetails, onBackToManager
             );
           })}
 
-          {project && experiences.length === 0 && (
+          {project && filteredExperiences.length === 0 && (
             <div className="empty-state">
-              <p>Este proyecto no tiene zonas ni escenas configuradas.</p>
+              <p>No se encontraron zonas que coincidan con la búsqueda.</p>
             </div>
           )}
         </div>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-4 mt-8 mb-4">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className={`px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all ${
+                currentPage === 1 
+                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed' 
+                  : 'bg-white text-blue-600 shadow-sm border border-slate-200 hover:bg-blue-50 hover:border-blue-300'
+              }`}
+            >
+              <FaChevronLeft /> Anterior
+            </button>
+            <span className="text-sm font-medium text-slate-600 bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-100">
+              Página <span className="font-bold text-blue-600">{currentPage}</span> de {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className={`px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all ${
+                currentPage === totalPages 
+                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed' 
+                  : 'bg-white text-blue-600 shadow-sm border border-slate-200 hover:bg-blue-50 hover:border-blue-300'
+              }`}
+            >
+              Siguiente <FaChevronRight />
+            </button>
+          </div>
+        )}
 
       </div>
       </div>
