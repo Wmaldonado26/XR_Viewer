@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import ReactDOM from "react-dom/client";
 import { useNavigate } from "react-router-dom";
-import { FaArrowLeft, FaMapMarkedAlt, FaChevronRight } from "react-icons/fa";
+import { FaArrowLeft, FaMapMarkedAlt, FaChevronRight, FaChevronDown, FaChevronUp } from "react-icons/fa";
 
 // Importe el componente de React Esto solucionará el "Pannellum is not defined"
 import { Pannellum } from "pannellum-react"; 
@@ -148,6 +148,7 @@ export default function Scene({
   const [isPlaying, setIsPlaying] = useState(false);
   const [autoRotate, setAutoRotate] = useState(true);
   const [userInteracting, setUserInteracting] = useState(false);
+  const [showCarousel, setShowCarousel] = useState(true);
 
   const [currentHfov, setCurrentHfov] = useState(140);
   const [currentYaw, setCurrentYaw] = useState(0);
@@ -466,6 +467,36 @@ export default function Scene({
         )}
       </Pannellum>
 
+      {/* Botón para Mostrar/Ocultar el Carrusel */}
+      <button 
+        onClick={() => setShowCarousel(!showCarousel)}
+        style={{
+          position: 'fixed',
+          bottom: showCarousel ? '140px' : '32px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: 'rgba(20, 20, 25, 0.45)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          border: '1px solid rgba(255,255,255,0.15)',
+          color: 'white',
+          padding: '8px 16px',
+          borderRadius: '20px',
+          cursor: 'pointer',
+          zIndex: 1001,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          fontSize: '13px',
+          fontWeight: '600',
+          transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+        }}
+      >
+        {showCarousel ? <FaChevronDown /> : <FaChevronUp />}
+        {showCarousel ? 'Ocultar Escenas' : 'Mostrar Escenas'}
+      </button>
+
       <div 
         ref={carouselRef}
         onMouseDown={handleMouseDown}
@@ -475,7 +506,9 @@ export default function Scene({
         className="scenes-carousel hide-scroll" 
         style={{ 
           position: 'fixed', 
-          bottom: '32px', 
+          bottom: showCarousel ? '32px' : '-120px', 
+          opacity: showCarousel ? 1 : 0,
+          pointerEvents: showCarousel ? 'auto' : 'none',
           left: '50%', 
           transform: 'translateX(-50%)', 
           display: 'flex', 

@@ -117,7 +117,12 @@ const DynamicNavbar = ({
           <div className="manager-header-actions" style={{display: 'flex', gap: '12px', alignItems: 'center'}}>
             {children}
             
-            <div className="profile-container" style={{ position: 'relative', marginLeft: '8px' }}>
+            <div 
+              className="profile-container" 
+              style={{ position: 'relative', marginLeft: '8px' }}
+              onMouseEnter={() => setMenuOpen(true)}
+              onMouseLeave={() => setMenuOpen(false)}
+            >
               <button className="profile-btn" onClick={() => setMenuOpen((v) => !v)}>
                 <div className="avatar-wrapper">
                   <FaUserCircle className="user-avatar-icon" />
@@ -126,7 +131,7 @@ const DynamicNavbar = ({
                 <FaChevronDown style={{ fontSize: '12px', color: 'inherit' }} />
               </button>
               {menuOpen && (
-                <div className="profile-dropdown-menu" onMouseLeave={() => setMenuOpen(false)}>
+                <div className="profile-dropdown-menu">
                   <div className="dropdown-user-info">
                     <p className="user-name">{currentUser?.name || 'Usuario'}</p>
                     <p className="user-role">{currentUser?.email || ''}</p>
