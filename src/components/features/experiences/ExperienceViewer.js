@@ -756,10 +756,9 @@ export default function Scene({
       <NavigationHistory
         currentScene={scene.key}
         showBack={false}
+        experiences={project?.experiences || []}
+        activeZoneId={activeZoneId}
         onNavigate={(sceneKey) => {
-          if (scenes[sceneKey]) navigateToScenePreserveOrientation(sceneKey);
-        }}
-        onBack={(sceneKey) => {
           if (scenes[sceneKey]) navigateToScenePreserveOrientation(sceneKey);
         }}
       />
