@@ -11,7 +11,7 @@ import {
   FaMoon, FaArrowLeft
 } from "react-icons/fa";
 import "./UserPermissions.css";
-import "../projects/ProjectManager.css";
+import "../projects/ProjectManager/ProjectManager.css";
 import DynamicNavbar from '../../layout/Navbar/DynamicNavbar';
 import userService from "../../../api/services/userService";
 import projectService from "../../../api/services/projectService";

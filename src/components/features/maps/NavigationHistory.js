@@ -11,8 +11,6 @@ const NavigationHistory = ({ currentScene, onNavigate, onBack, showBack = true, 
   const handleBack = () => {
     if (window.history.length > 1) {
       navigate(-1);
-    } else if (projectId) {
-      navigate(`/project/${projectId}`);
     } else {
       navigate('/gallery');
     }

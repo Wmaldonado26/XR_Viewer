@@ -1,5 +1,7 @@
 import React from "react";
 import { useLocation, Link } from "react-router-dom";
+import authService from "../../../api/services/authService";
+import { FaHome } from "react-icons/fa";
 import "./DynamicBreadcrumbs.css";
 
 const DynamicBreadcrumbs = ({ customMappings = {}, customLinks = {}, customActions = {}, customDropdowns = {}, ignoreSegments = [] }) => {
@@ -9,6 +11,11 @@ const DynamicBreadcrumbs = ({ customMappings = {}, customLinks = {}, customActio
   // 2. Separamos la ruta en segmentos y filtramos los vacíos y los ignorados
   const pathnames = location.pathname.split("/").filter((x) => x && !ignoreSegments.includes(x));
 
+  // Determine user role and home route
+  const currentUser = authService.getCurrentUser();
+  const isAdmin = currentUser?.role === "admin" || currentUser?.role === "project_admin";
+  const homeRoute = isAdmin ? "/admin" : "/gallery";
+
   // Función para formatear cada segmento de la ruta (Capitalizar y limpiar)
   const formatSegment = (segment) => {
     // Si pasamos un mapeo personalizado para IDs o nombres raros, lo usamos
@@ -16,7 +23,7 @@ const DynamicBreadcrumbs = ({ customMappings = {}, customLinks = {}, customActio
       return customMappings[segment];
     }
     // Reemplazar guiones por espacios y capitalizar la primera letra
-    const decoded = decodeURIComponent(segment).replace(/-/g, " ");
+    const decoded = decodeURIComponent(segment).replace(/ /g, " ");
     return decoded.charAt(0).toUpperCase() + decoded.slice(1);
   };
 
@@ -36,6 +43,12 @@ const DynamicBreadcrumbs = ({ customMappings = {}, customLinks = {}, customActio
   return (
     <nav aria-label="breadcrumb" className="breadcrumb-container">
       <ul className="breadcrumb-list">
+        <li className="breadcrumb-item">
+          <Link to={homeRoute} className="breadcrumb-link" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <FaHome size={20} />
+          </Link>
+        </li>
+        {pathnames.length > 0 && <li className="breadcrumb-separator"> - </li>}
         {/* Iteramos sobre los segmentos de la ruta */}
         {pathnames.map((segment, index) => {
           // Construimos la URL acumulada por defecto
@@ -53,7 +66,7 @@ const DynamicBreadcrumbs = ({ customMappings = {}, customLinks = {}, customActio
 
           return (
             <React.Fragment key={segment}>
-              {index > 0 && <li className="breadcrumb-separator"> - </li>}
+              {index > 0 && <li className="breadcrumb-separator">  </li>}
               <li className={`breadcrumb-item ${isLast ? "active" : ""} ${hasDropdown ? "breadcrumb-dropdown-container" : ""}`} style={hasDropdown ? { position: 'relative' } : {}}>
                 {isLast ? (
                   // Si es el último, no es clickeable (a menos que tenga customAction o dropdown)
@@ -124,3 +137,4 @@ const DynamicBreadcrumbs = ({ customMappings = {}, customLinks = {}, customActio
 };
 
 export default DynamicBreadcrumbs;
+                                         

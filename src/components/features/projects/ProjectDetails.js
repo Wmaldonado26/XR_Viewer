@@ -5,7 +5,7 @@ import {
   FaChevronLeft, FaChevronRight, FaDownload, FaFilePdf, FaFileAlt
 } from "react-icons/fa";
 import "./ProjectDetails.css";
-import "./ProjectManager.css";
+import "./ProjectManager/ProjectManager.css";
 import projectService from "../../../api/services/projectService";
 import authService from "../../../api/services/authService";
 import { useNavigate, useParams } from "react-router-dom";
