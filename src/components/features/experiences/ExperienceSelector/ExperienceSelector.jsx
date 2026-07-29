@@ -1,93 +1,28 @@
-import React, { useEffect, useMemo, useState } from "react";
-import "./ExperienceSelector.css";
-import "../projects/ProjectManager.css";
-import cotecmarLogo from "../../../assets/images/logo.png";
+import React from "react";
 import { FaMapMarkerAlt, FaInfoCircle, FaImage, FaList, FaThLarge, FaSearch, FaFilter, FaArrowRight, FaShip, FaSignOutAlt, FaUserShield, FaChevronRight, FaChevronLeft, FaPlay, FaBars, FaTimes, FaCog, FaLock, FaUsers, FaShieldAlt, FaKey, FaChevronDown, FaUserCircle, FaMoon, FaSun, FaImages, FaArrowLeft, FaAnchor, FaWater, FaLayerGroup, FaFolderOpen } from "react-icons/fa";
-import DynamicNavbar from "../../layout/Navbar/DynamicNavbar";
-import DynamicBreadcrumbs from "../../ui/DynamicBreadcrumbs/DynamicBreadcrumbs";
-import projectService from "../../../api/services/projectService";
-import authService from "../../../api/services/authService";
-import { useNavigate } from "react-router-dom";
-import PasswordSettings from "../auth/PasswordSettings";
-import SceneCalibrationTool from "../experiences/SceneCalibrationTool";
+import DynamicNavbar from "../../../layout/Navbar/DynamicNavbar";
+import DynamicBreadcrumbs from "../../../ui/DynamicBreadcrumbs/DynamicBreadcrumbs";
+import cotecmarLogo from "../../../../assets/images/logo.png";
+import "./ExperienceSelector.css";
+import "../../projects/ProjectManager/ProjectManager.css";
 
 const ICONS = { FaShip, FaCog, FaAnchor, FaWater, FaImage, FaMapMarkerAlt };
 
-const ExperienceSelector = ({ onExperienceSelect, onViewDetails, onBackToManager, onAccessAdmin, onLogout, darkMode, onToggleDarkMode }) => {
-  const navigate = useNavigate();
-  const currentUser = authService.getCurrentUser();
-
-
-  const [project, setProject] = useState(null);
-  const [allProjects, setAllProjects] = useState([]);
-  const [showSidebar, setShowSidebar] = useState(false);
-
-  // Pagination & Search
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState("");
-  const itemsPerPage = 6;
-
-  useEffect(() => {
-    (async () => {
-      const active = await projectService.getActiveProject();
-      console.log("INFO DE ESCENAS EN EL PROYECTO...", active);
-      setProject(active);
-    })();
-    projectService.getAllProjects().then(setAllProjects).catch(console.error);
-  }, []);
-
-  const experiences = useMemo(() => {
-    if (!project) return [];
-
-    if (Array.isArray(project.experiences) && project.experiences.length > 0) {
-      return project.experiences.map((exp) => ({
-        id: exp.id,
-        title: exp.name,
-        description: exp.description || "",
-        iconName: exp.icon || "FaMapMarkerAlt",
-        startScene: exp.startScene || "",
-        image: exp.image || "",
-      }));
-    }
-
-    const sceneEntries = Object.entries(project.scenes || {});
-    return sceneEntries.map(([sceneKey, scene]) => ({
-      id: sceneKey,
-      title: scene.title || sceneKey,
-      description: "Escena 360°",
-      iconName: "FaMapMarkerAlt",
-      startScene: sceneKey,
-      image: scene.image || "",
-    }));
-  }, [project]);
-
-  const handleClick = (exp) => {
-    const target = exp.startScene || exp.id;
-
-    localStorage.setItem("lastSceneKey", target);
-
-    onExperienceSelect(target);
-  };
-
-  const filteredExperiences = useMemo(() => {
-    if (!searchQuery.trim()) return experiences;
-    return experiences.filter(exp => 
-      exp.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [experiences, searchQuery]);
-
-  const paginatedExperiences = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return filteredExperiences.slice(startIndex, startIndex + itemsPerPage);
-  }, [filteredExperiences, currentPage]);
-
-  const totalPages = Math.ceil(filteredExperiences.length / itemsPerPage);
-
-  // Reset page when search changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery]);
-
+export const ExperienceSelectorTemplate = ({ logic }) => {
+  const {
+    navigate,
+    currentUser,
+    project,
+    allProjects,
+    showSidebar, setShowSidebar,
+    currentPage, setCurrentPage,
+    searchQuery, setSearchQuery,
+    paginatedExperiences,
+    filteredExperiences,
+    totalPages,
+    handleClick,
+    onBackToManager
+  } = logic;
 
   return (
     <>
@@ -330,5 +265,3 @@ const ExperienceSelector = ({ onExperienceSelect, onViewDetails, onBackToManager
     </>
   );
 };
-
-export default ExperienceSelector;

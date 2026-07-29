@@ -70,7 +70,22 @@ const ProjectGallery = () => {
   }, [searchTerm, filterStatus, projects]);
 
   const handleProjectClick = (projectId) => {
-    navigate(`/project/${projectId}`);
+    const project = projects.find(p => p.id === projectId);
+    let firstSceneId = null;
+    
+    if (project) {
+      if (project.experiences && project.experiences.length > 0) {
+        firstSceneId = project.experiences[0].startScene || project.experiences[0].id;
+      } else if (project.scenes && Object.keys(project.scenes).length > 0) {
+        firstSceneId = Object.keys(project.scenes)[0];
+      }
+    }
+    
+    if (firstSceneId) {
+      navigate(`/project/${projectId}/experience/${firstSceneId}`);
+    } else {
+      navigate(`/project/${projectId}`);
+    }
   };
 
   const handleLogout = () => {

@@ -237,7 +237,7 @@ class ProjectService {
       const response = await fetch(`${API_BASE_URL}/projects/${projectId}`, {
         headers: authService.getAuthHeaders(),
       });
-      if (response.status === 401 || response.status === 403 || response.status === 404) {
+      if (response.status === 403 || response.status === 404) {
         // Fallback for demo
         if (projectId === "arc-independiente-001" || projectId === "businu") {
           const defaultProj = createCurrentProject();

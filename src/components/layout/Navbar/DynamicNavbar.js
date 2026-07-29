@@ -5,7 +5,7 @@ import MapModal from "../../features/maps/MapModal";
 import "./DynamicNavbar.css";
 import cotecmarLogo from "../../../assets/images/logo.png";
 import cotecmarLogoColored from "../../../assets/images/cotecmar-logo.png";
-import "../../features/projects/ProjectManager.css";
+import "../../features/projects/ProjectManager/ProjectManager.css";
 import { useTheme } from "../../../context/ThemeContext";
 import authService from "../../../api/services/authService";
 import projectService from "../../../api/services/projectService";
@@ -88,6 +88,7 @@ const DynamicNavbar = ({
           <div className="manager-header-middle" style={{flex: 1, display: 'flex', justifyContent: 'center', padding: '0 24px'}}>
             {middleContent || (
               <DynamicBreadcrumbs 
+                ignoreSegments={['admin', 'gallery']}
                 customMappings={{
                   project: "Proyectos",
                   experience: "Zonas",
@@ -107,7 +108,19 @@ const DynamicNavbar = ({
                     label: p.name,
                     sublabel: p.vesselType || 'Visualización 360°',
                     image: p.thumbnail || p.image || '/images/default_image.png',
-                    onClick: () => navigate(`/project/${p.id}`)
+                    onClick: () => {
+                      let firstSceneId = null;
+                      if (p.experiences && p.experiences.length > 0) {
+                        firstSceneId = p.experiences[0].startScene || p.experiences[0].id;
+                      } else if (p.scenes && Object.keys(p.scenes).length > 0) {
+                        firstSceneId = Object.keys(p.scenes)[0];
+                      }
+                      if (firstSceneId) {
+                        navigate(`/project/${p.id}/experience/${firstSceneId}`);
+                      } else {
+                        navigate(`/project/${p.id}`);
+                      }
+                    }
                   }))
                 }}
               />

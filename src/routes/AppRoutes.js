@@ -23,6 +23,7 @@ const ProjectViewerWrapper = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
   const [project, setProject] = useState(null);
+
   useEffect(() => {
     const loadProject = async () => {
       if (!projectId) return;
@@ -31,6 +32,16 @@ const ProjectViewerWrapper = () => {
       if (proj) {
         setProject(proj);
         projectService.setActiveProject(projectId);
+        
+        let firstSceneId = "empty";
+        if (proj.experiences && proj.experiences.length > 0) {
+          firstSceneId = proj.experiences[0].startScene || proj.experiences[0].id;
+        } else if (proj.scenes && Object.keys(proj.scenes).length > 0) {
+          firstSceneId = Object.keys(proj.scenes)[0];
+        }
+        
+        // Redirigir siempre a la experiencia (saltar el selector)
+        navigate(`/project/${proj.id}/experience/${firstSceneId}`, { replace: true });
       } else {
         navigate("/gallery");
       }
@@ -39,6 +50,8 @@ const ProjectViewerWrapper = () => {
     loadProject();
   }, [projectId, navigate]);
 
+  //comentado
+  /*
   const handleExperienceSelect = (experienceId) => {
     navigate(`/project/${projectId}/experience/${experienceId}`);
   };
@@ -47,20 +60,17 @@ const ProjectViewerWrapper = () => {
     navigate(`/project/${projectId}/details`);
   };
 
-  if (!project) {
-    return <div className="loading-screen">Cargando proyecto...</div>;
-  }
-
   return (
-    <>
-      <ExperienceSelector
-        onExperienceSelect={handleExperienceSelect}
-        onViewDetails={handleViewDetails}
-        onBackToManager={() => navigate(-1)}
-        onAccessAdmin={() => navigate("/admin/login")}
-      />
-    </>
+    <ExperienceSelector
+      onExperienceSelect={handleExperienceSelect}
+      onViewDetails={handleViewDetails}
+      onBackToManager={() => navigate(-1)}
+      onAccessAdmin={() => navigate("/admin/login")}
+    />
   );
+  */
+
+  return <div className="loading-screen" style={{ width: '100vw', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Abriendo visualizador...</div>;
 };
 
 const ExperienceViewerWrapper = () => {
@@ -114,7 +124,19 @@ const AdminWrapper = () => {
   });
 
   const handleSelectProject = (project) => {
-    navigate(`/project/${project.id}`);
+    // navigate(`/project/${project.id}`);
+    let firstSceneId = null;
+    if (project.experiences && project.experiences.length > 0) {
+      firstSceneId = project.experiences[0].startScene || project.experiences[0].id;
+    } else if (project.scenes && Object.keys(project.scenes).length > 0) {
+      firstSceneId = Object.keys(project.scenes)[0];
+    }
+    
+    if (firstSceneId) {
+      navigate(`/project/${project.id}/experience/${firstSceneId}`);
+    } else {
+      navigate(`/project/${project.id}`);
+    }
   };
 
   const handleCreateNewProject = async () => {

@@ -4,8 +4,8 @@ import { FaEdit, FaTrash, FaPlus, FaSave, FaTimes, FaHome, FaUsers, FaLock, FaLa
 import DynamicNavbar from '../../layout/Navbar/DynamicNavbar';
 import landingService from "../../../api/services/landingService";
 import authService from "../../../api/services/authService";
-import "../projects/ProjectManager.css";
-import "../users/UserManagement.css";
+import "../projects/ProjectManager/ProjectManager.css";
+import "../users/UserManagement/UserManagement.css";
 import "../../common/Modal/ConfirmModal.css";
 import "./LandingCardsAdmin.css";
 import cotecmarLogo from "../../../assets/images/logo.png";
