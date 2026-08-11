@@ -230,32 +230,40 @@ export const ExperienceViewerTemplate = ({
         </div>
 
         {/* Right Side Stack (Zones + Map) */}
-        <div className="zones-stack">
-          {logic.showZonesList && (
-            <div className="zones-buttons">
-              {(project?.experiences || []).map(exp => (
-                <button 
-                  key={exp.id}
-                  className={`zone-btn ${logic.activeZoneId === exp.id ? 'active' : ''}`}
-                  onClick={() => {
-                    logic.setActiveZoneId(exp.id);
-                    logic.setMapOverlayOpen(true);
-                  }}
-                >
-                  {exp.name}
-                </button>
-              ))}
-            </div>
-          )}
+        {(() => {
+          const hasAnyMap = project?.settings?.mapByZone && Object.values(project.settings.mapByZone).some(m => m && m.mapUrl);
           
-          <button 
-            className={`nav-action-btn map-btn ${logic.showZonesList ? 'active' : 'inactive'}`}
-            onClick={() => logic.setShowZonesList(!logic.showZonesList)}
-            title="Mostrar/Ocultar zonas"
-          >
-            <FaMapMarkedAlt />
-          </button>
-        </div>
+          if (!hasAnyMap) return null;
+
+          return (
+            <div className="zones-stack">
+              {logic.showZonesList && (
+                <div className="zones-buttons">
+                  {(project?.experiences || []).map(exp => (
+                    <button 
+                      key={exp.id}
+                      className={`zone-btn ${logic.activeZoneId === exp.id ? 'active' : ''}`}
+                      onClick={() => {
+                        logic.setActiveZoneId(exp.id);
+                        logic.setMapOverlayOpen(true);
+                      }}
+                    >
+                      {exp.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+              
+              <button 
+                className={`nav-action-btn map-btn ${logic.showZonesList ? 'active' : 'inactive'}`}
+                onClick={() => logic.setShowZonesList(!logic.showZonesList)}
+                title="Mostrar/Ocultar zonas"
+              >
+                <FaMapMarkedAlt />
+              </button>
+            </div>
+          );
+        })()}
         {/* Map Overlay Modal */}
         {logic.mapOverlayOpen && (
           <div className="map-overlay-container">
