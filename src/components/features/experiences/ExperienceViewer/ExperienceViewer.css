@@ -12,7 +12,7 @@
   padding: 10px 0;
   border-radius: 0;
   z-index: 1000;
-  max-height: calc(100vh - 120px);
+  max-height: 468px; /* Altura exacta para 5 imágenes (80*5 + 12*4 + 20) */
   overflow-y: auto;
   pointer-events: auto;
   scrollbar-width: none;
