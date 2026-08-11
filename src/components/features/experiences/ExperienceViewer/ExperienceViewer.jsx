@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { FaArrowLeft, FaMapMarkedAlt, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { FaArrowLeft, FaMapMarkedAlt, FaChevronLeft, FaChevronRight, FaPause, FaPlay, FaTimes } from "react-icons/fa";
 import { Pannellum } from "pannellum-react";
 import CustomHotspot from "../../hotspots/CustomHotspot";
 import HotspotModal from "../../hotspots/HotspotModal";
@@ -145,85 +145,169 @@ export const ExperienceViewerTemplate = ({
 
   return (
     <>
-      <Pannellum
-        width={"100%"}
-        height={"100vh"}
-        title={scene.title}
-        image={scene.image}
-        pitch={scene.pitch}
-        yaw={scene.yaw}
-        hfov={currentHfov}
-        ref={setPannellumRef}
-        minHfov={80}
-        maxHfov={150}
-        autoLoad
-        showFullscreenCtrl={false}
-        showZoomCtrl={false}
-        hotspotDebug={false}
-        minPitch={-140}
-        maxPitch={140}
-        crossOrigin="anonymous"
-        imageLoader={true}
-        dynamicUpdate={true}
-        compass={false}
-        keyboardZoom={false}
-        mouseZoom={true}
-        doubleClickZoom={false}
-        dragMode={1}
-        autoRotate={autoRotate && !userInteracting ? 2 : 0}
-        autoRotateInactivityDelay={3000}
-        autoRotateStopDelay={3000}
-        onMouseDown={handleUserInteraction}
-        onTouchStart={handleUserInteraction}
-        onMouseup={handleUserInteraction}
-        onTouchend={handleUserInteraction}
-      >
-        {Object.entries(scene.hotSpots || {}).map(([key, element], i) =>
-          renderHotspot({ ...element, key }, i)
-        )}
-      </Pannellum>
+      <div className="viewer-container" style={{ position: 'absolute', top: '72px', left: 0, right: 0, bottom: 0, overflow: 'hidden' }}>
+        <Pannellum
+          width={"100%"}
+          height={"100%"}
+          title={scene.title}
+          image={scene.image}
+          pitch={scene.pitch}
+          yaw={scene.yaw}
+          hfov={currentHfov}
+          ref={setPannellumRef}
+          minHfov={80}
+          maxHfov={150}
+          autoLoad
+          showFullscreenCtrl={false}
+          showZoomCtrl={false}
+          hotspotDebug={false}
+          minPitch={-140}
+          maxPitch={140}
+          crossOrigin="anonymous"
+          imageLoader={true}
+          dynamicUpdate={true}
+          compass={false}
+          keyboardZoom={false}
+          mouseZoom={true}
+          doubleClickZoom={false}
+          dragMode={1}
+          autoRotate={autoRotate && !userInteracting ? 2 : 0}
+          autoRotateInactivityDelay={3000}
+          autoRotateStopDelay={3000}
+          onMouseDown={handleUserInteraction}
+          onTouchStart={handleUserInteraction}
+          onMouseup={handleUserInteraction}
+          onTouchend={handleUserInteraction}
+        >
+          {Object.entries(scene.hotSpots || {}).map(([key, element], i) =>
+            renderHotspot({ ...element, key }, i)
+          )}
+        </Pannellum>
 
-      {/* Botón para Mostrar/Ocultar el Carrusel */}
-      <button 
-        onClick={() => setShowCarousel(!showCarousel)}
-        className={`carousel-toggle-btn ${showCarousel ? 'show' : 'hide'}`}
-      >
-        {showCarousel ? <FaChevronDown /> : <FaChevronUp />}
-        {showCarousel ? 'Ocultar Escenas' : 'Mostrar Escenas'}
-      </button>
+        {/* Left Vertical Thumbnails */}
+        <div 
+          ref={carouselRef}
+          onMouseDown={handleMouseDown}
+          onMouseLeave={handleMouseLeave}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
+          className="scenes-carousel-wrapper vertical-left"
+        >
+          {activeSceneKeys.map((key) => {
+            const s = scenes[key];
+            if (!s) return null;
+            const isActive = scene.key === key;
+            return (
+              <button
+                key={key}
+                onDragStart={(e) => e.preventDefault()}
+                onClick={(e) => {
+                  if (isDragging.current) {
+                    e.preventDefault();
+                    return;
+                  }
+                  navigateToScenePreserveOrientation(key);
+                }}
+                className={`scene-carousel-btn ${isActive ? 'active' : 'inactive'}`}
+              >
+                <img src={s.image} alt={s.title} draggable={false} />
+              </button>
+            )
+          })}
+        </div>
 
-      <div 
-        ref={carouselRef}
-        onMouseDown={handleMouseDown}
-        onMouseLeave={handleMouseLeave}
-        onMouseUp={handleMouseUp}
-        onMouseMove={handleMouseMove}
-        className={`scenes-carousel-wrapper ${showCarousel ? 'show' : 'hide'}`}
-      >
-        {activeSceneKeys.map((key) => {
-          const s = scenes[key];
-          if (!s) return null;
-          const isActive = scene.key === key;
-          return (
-            <button
-              key={key}
-              onDragStart={(e) => e.preventDefault()}
-              onClick={(e) => {
-                if (isDragging.current) {
-                  e.preventDefault();
-                  return;
-                }
-                navigateToScenePreserveOrientation(key);
-              }}
-              className={`scene-carousel-btn ${isActive ? 'active' : 'inactive'}`}
+        {/* Bottom Center Playback Controls */}
+        <div className="playback-controls-pill">
+          <button className="control-btn" onClick={logic.handlePrevious}>
+            <FaChevronLeft />
+          </button>
+          <button className={`control-btn ${!autoRotate ? 'active' : ''}`} onClick={logic.handlePlayPause}>
+            {!autoRotate ? <FaPause /> : <FaPlay />}
+          </button>
+          <button className="control-btn" onClick={logic.handleNext}>
+            <FaChevronRight />
+          </button>
+        </div>
+
+        {/* Right Side Stack (Zones + Map) */}
+        <div className="zones-stack">
+          {logic.showZonesList && (
+            <div className="zones-buttons">
+              {(project?.experiences || []).map(exp => (
+                <button 
+                  key={exp.id}
+                  className={`zone-btn ${logic.activeZoneId === exp.id ? 'active' : ''}`}
+                  onClick={() => {
+                    logic.setActiveZoneId(exp.id);
+                    logic.setMapOverlayOpen(true);
+                  }}
+                >
+                  {exp.name}
+                </button>
+              ))}
+            </div>
+          )}
+          
+          <button 
+            className={`nav-action-btn map-btn ${logic.showZonesList ? 'active' : 'inactive'}`}
+            onClick={() => logic.setShowZonesList(!logic.showZonesList)}
+            title="Mostrar/Ocultar zonas"
+          >
+            <FaMapMarkedAlt />
+          </button>
+        </div>
+        {/* Map Overlay Modal */}
+        {logic.mapOverlayOpen && (
+          <div className="map-overlay-container">
+            <button 
+              className="close-map-btn" 
+              onClick={() => logic.setMapOverlayOpen(false)}
             >
-              <img src={s.image} alt={s.title} draggable={false} />
-              <div className="scene-carousel-title">
-                {s.title}
-              </div>
+              <FaTimes />
             </button>
-          )
-        })}
+            {(() => {
+              const zoneName = project?.experiences?.find(e => e.id === logic.activeZoneId)?.name || 'Plano';
+              const planImage = project?.settings?.mapByZone?.[logic.activeZoneId]?.mapUrl;
+              const scenesInZone = Object.entries(project?.scenes || {})
+                .filter(([k, s]) => s?.map?.zoneId === logic.activeZoneId || s?.zone === logic.activeZoneId || s?.zoneId === logic.activeZoneId)
+                .map(([k, s]) => ({ ...s, key: k }));
+
+              return (
+                <>
+                  <div className="map-header">
+                    <h3 className="map-zone-title">{zoneName}</h3>
+                  </div>
+                  <div className="map-image-wrapper">
+                    {planImage ? (
+                      <>
+                        <img src={planImage} alt="Plano" draggable={false} />
+                        {scenesInZone.map(s => {
+                          const isActive = s.key === scene.key;
+                          return (
+                            <button
+                              key={s.key}
+                              onClick={() => navigateToScenePreserveOrientation(s.key)}
+                              className={`map-hotspot-btn ${isActive ? 'active' : 'inactive'}`}
+                              style={{
+                                top: `${s.map?.top || s.top || 0}%`,
+                                left: `${s.map?.left || s.left || 0}%`,
+                              }}
+                            />
+                          );
+                        })}
+                      </>
+                    ) : (
+                      <div className="map-no-image">
+                        <FaMapMarkedAlt size={54} style={{ marginBottom: '15px', opacity: 0.5 }} />
+                        <p>No hay mapas disponibles</p>
+                      </div>
+                    )}
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        )}
       </div>
 
       {/* Modal para hotspots , elementos e info */}
@@ -287,63 +371,6 @@ export const ExperienceViewerTemplate = ({
           if (scenes[sceneKey]) navigateToScenePreserveOrientation(sceneKey);
         }}
       />
-
-      <div className="top-nav-bar">
-       
-
-        <div style={{ position: 'relative' }}>
-          <button 
-            onClick={() => setMapOverlayOpen(!mapOverlayOpen)}
-            className={`nav-action-btn map-btn ${mapOverlayOpen ? 'active' : 'inactive'}`}
-          >
-            <FaMapMarkedAlt /> {mapOverlayOpen ? 'Ocultar Mapa' : 'Ver Mapa'}
-          </button>
-
-          {mapOverlayOpen && (
-            <div className="map-overlay-container">
-              {(() => {
-                const zoneName = project?.experiences?.find(e => e.id === activeZoneId)?.name || 'Zona desconocida';
-                const planImage = project?.settings?.mapByZone?.[activeZoneId]?.mapUrl;
-                const scenesInZone = Object.entries(project?.scenes || {})
-                  .filter(([k, s]) => s?.map?.zoneId === activeZoneId || s?.zone === activeZoneId || s?.zoneId === activeZoneId)
-                  .map(([k, s]) => ({ ...s, key: k }));
-
-                return (
-                  <>
-                    <div className="map-image-wrapper">
-                      {planImage ? (
-                        <>
-                          <img src={planImage} alt="Plano" draggable={false} />
-                          {scenesInZone.map(s => {
-                            const isActive = s.key === scene.key;
-                            return (
-                              <button
-                                key={s.key}
-                                onClick={() => navigateToScenePreserveOrientation(s.key)}
-                                className={`map-hotspot-btn ${isActive ? 'active' : 'inactive'}`}
-                                style={{
-                                  top: `${s.map?.top || s.top || 0}%`,
-                                  left: `${s.map?.left || s.left || 0}%`,
-                                }}
-                              />
-                            );
-                          })}
-                        </>
-                      ) : (
-                        <div className="map-no-image">
-                        Los Planos No Estan Disponible
-                        </div>
-                      )}
-                    </div>
-                  </>
-                );
-              })()}
-            </div>
-          )}
-        </div>
-      </div>
-
     </>
   );
 };
-

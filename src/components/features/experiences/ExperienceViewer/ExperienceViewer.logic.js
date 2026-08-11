@@ -19,6 +19,7 @@ export const useExperienceViewerLogic = ({ selectedExperience }) => {
   const [currentYaw, setCurrentYaw] = useState(0);
   const [currentPitch, setCurrentPitch] = useState(0);
   const [mapOverlayOpen, setMapOverlayOpen] = useState(false);
+  const [showZonesList, setShowZonesList] = useState(true);
   const [activeZoneId, setActiveZoneId] = useState(null);
   const [pannellumRef, setPannellumRef] = useState(null);
 
@@ -98,10 +99,11 @@ export const useExperienceViewerLogic = ({ selectedExperience }) => {
 
     if (newZoneId) {
       setActiveZoneId(newZoneId);
-    } else if (!activeZoneId && project?.experiences?.length > 0) {
-      setActiveZoneId(project.experiences[0].id);
+    } else if (project?.experiences?.length > 0) {
+      // Solo hacer fallback al primer experience si no tenemos nada activo
+      setActiveZoneId(prev => prev || project.experiences[0].id);
     }
-  }, [scene, project, activeZoneId]);
+  }, [scene, project]);
 
   const sceneKeySafe = scene?.key || null;
   const mapHeading = useMemo(() => {
@@ -307,7 +309,8 @@ export const useExperienceViewerLogic = ({ selectedExperience }) => {
     currentYaw,
     currentPitch,
     mapOverlayOpen, setMapOverlayOpen,
-    activeZoneId,
+    showZonesList, setShowZonesList,
+    activeZoneId, setActiveZoneId,
     pannellumRef, setPannellumRef,
     carouselRef,
     isDragging,
