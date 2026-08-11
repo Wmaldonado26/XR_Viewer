@@ -4,6 +4,7 @@ import cotecmarLogoColored from "../../assets/images/cotecmar-logo.png";
 import xrlabLogo from "../../assets/images/xrlab.png";
 import xrlabLogoAZ from "../../assets/images/logoAZ.png";
 import fondoVideo from "../../assets/images/fondo.mp4";
+import img360Card from "../../assets/images/PuenteDeGobierno.jpg";
 import "./LandingPage.css";
 import "../../components/features/projects/ProjectManager/ProjectManager.css";
 
@@ -17,6 +18,9 @@ export const LandingPageTemplate = ({
   logoImageRef,
   videoBgRef,
   scrollArrowRef,
+  fullScreenCardRef,
+  fullScreenImageRef,
+  fullScreenTextRef,
   stackingCards,
   isMenuOpen,
   setIsMenuOpen,
@@ -162,7 +166,7 @@ export const LandingPageTemplate = ({
           </div>
           
           <div className="w-full">
-            <div className="landing-stack-cards" style={{ "--numcards": stackingCards.length || 1 }}>
+            <div className="landing-stack-cards" style={{ "--numcards": (stackingCards.length + 1) || 1 }}>
               {stackingCards.map((card, index) => (
                 <div 
                   key={card.id} 
@@ -194,6 +198,41 @@ export const LandingPageTemplate = ({
                   </div>
                 </div>
               ))}
+
+              {/* 4th Custom Card: 360 View Fullscreen */}
+              <div 
+                ref={fullScreenCardRef}
+                className="relative w-full h-screen flex items-center justify-center cursor-pointer group overflow-hidden sticky top-0 z-40"
+                style={{ marginTop: '-40px' }}
+                onClick={() => navigate("/public-tour/businu/bridge")}
+              >
+                <img
+                  ref={fullScreenImageRef}
+                  src={img360Card}
+                  alt="Vista 360"
+                  className="absolute inset-0 w-full h-full object-cover z-0 origin-center"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-40 z-10 transition-opacity duration-300 group-hover:bg-opacity-50"></div>
+                
+                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none">
+                  <h2 ref={fullScreenTextRef} className="text-white text-9xl md:text-[15rem] font-bold tracking-widest opacity-90 drop-shadow-2xl m-0" style={{ color: 'white' }}>
+                    360
+                  </h2>
+                </div>
+
+                <div className="absolute bottom-16 left-0 right-0 z-20 flex justify-center pointer-events-none">
+                  <button 
+                    className="landing-btn pointer-events-auto"
+                    style={{ backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate("/public-tour/businu/bridge");
+                    }}
+                  >
+                    Hacer click
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </section>
