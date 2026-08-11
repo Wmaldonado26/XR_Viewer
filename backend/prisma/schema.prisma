@@ -47,7 +47,7 @@ model User {
   isActive     Boolean  @default(true)
 
   createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  updatedAt    DateTime @default(now()) @updatedAt
 
   userProjects UserProject[]
 
@@ -76,7 +76,7 @@ model LandingCard {
   imagePath   String
   orderIndex  Int      @default(0)
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @default(now()) @updatedAt
 
   @@map("landing_cards")
 }
