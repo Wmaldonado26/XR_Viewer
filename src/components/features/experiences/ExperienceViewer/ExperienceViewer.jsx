@@ -352,8 +352,16 @@ export const ExperienceViewerTemplate = ({
                 sublabel: "Zona",
                 image: exp.image || '/images/default_image.png',
                 onClick: () => {
-                  const targetScene = exp.startScene || exp.id;
-                  if (scenes[targetScene]) {
+                  logic.setActiveZoneId(exp.id);
+                  const scenesInZone = Object.entries(project?.scenes || {})
+                    .filter(([k, s]) => s?.map?.zoneId === exp.id || s?.zone === exp.id || s?.zoneId === exp.id);
+                  
+                  let targetScene = exp.startScene;
+                  if (!targetScene && scenesInZone.length > 0) {
+                    targetScene = scenesInZone[0][0];
+                  }
+
+                  if (targetScene && scenes[targetScene]) {
                     navigateToScenePreserveOrientation(targetScene);
                   }
                 }
