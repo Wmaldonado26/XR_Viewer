@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -80,3 +80,4 @@ model LandingCard {
 
   @@map("landing_cards")
 }
+                  logic.setActiveZoneId(exp.id);
