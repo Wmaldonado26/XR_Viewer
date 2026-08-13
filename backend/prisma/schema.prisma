@@ -80,4 +80,3 @@ model LandingCard {
 
   @@map("landing_cards")
 }
-                  logic.setActiveZoneId(exp.id);
