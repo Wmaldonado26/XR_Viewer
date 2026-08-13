@@ -1,6 +1,6 @@
 // src/components/CustomHotspot.jsx
 import React, { useMemo, useState } from "react";
-import { LuArrowRight, LuPaperclip, LuInfo } from "react-icons/lu";
+import { LuArrowUp, LuPaperclip, LuInfo } from "react-icons/lu";
 import "./CustomHotspot.css";
 
 /**
@@ -16,7 +16,7 @@ export default function CustomHotspot({ previewImage, label, type = "nav" }) {
     if (type === "element")
       return { cls: "hs--element", Icon: LuPaperclip, aria: "Elemento" };
     if (type === "info") return { cls: "hs--info", Icon: LuInfo, aria: "Info" };
-    return { cls: "hs--nav", Icon: LuArrowRight, aria: "Navegación" };
+    return { cls: "hs--nav", Icon: LuArrowUp, aria: "Navegación" };
   }, [type]);
 
   const Icon = meta.Icon;
