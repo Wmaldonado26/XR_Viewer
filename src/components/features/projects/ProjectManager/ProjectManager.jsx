@@ -128,7 +128,7 @@ export const ProjectManagerTemplate = ({ logic }) => {
       />
 
       <div className="manager-actions dashboard-content">
-        <div className="projects-header" style={{ marginBottom: '24px', marginTop: '32px' }}>
+        <div className="projects-header" style={{ marginBottom: '16px', marginTop: '0px' }}>
           <div className="projects-header-title">
             <h2>Gestión de Proyecto</h2>
           </div>
