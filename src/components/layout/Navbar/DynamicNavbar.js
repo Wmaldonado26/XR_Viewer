@@ -175,7 +175,7 @@ const DynamicNavbar = ({
           </div>
         </div>
       </header>
-      <div style={{ height: '80px', width: '100%', display: 'flow-root' }} aria-hidden="true" />
+     
 
       <MapModal
         isOpen={showMapModal}

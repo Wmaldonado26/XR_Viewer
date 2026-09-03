@@ -60,8 +60,12 @@ export default function ProjectEditorView({
     <div className="project-editor modern-editor">
       <DynamicNavbar
         showBackButton={false}
-        title={dynamicNavbarTitle}
-        subtitle={dynamicNavbarSubtitle}
+        middleContent={
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            {dynamicNavbarTitle}
+            {dynamicNavbarSubtitle}
+          </div>
+        }
       >
         <div className="project-editor__header-right">
           <button
