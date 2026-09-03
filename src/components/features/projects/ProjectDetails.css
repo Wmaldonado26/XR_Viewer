@@ -7,19 +7,21 @@
 }
 
 .project-details-header {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  background: #ffffff;
   padding: 24px 40px;
-  color: white;
+  color: #0f172a;
   display: flex;
   align-items: center;
   justify-content: flex-start;
   gap: 24px;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04);
 }
 
 .back-btn {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
   padding: 10px 20px;
   border-radius: 8px;
   display: flex;
@@ -29,13 +31,13 @@
   font-size: 14px;
   font-weight: 600;
   margin: 0;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
 }
 
 .back-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  transform: translateX(-4px);
-  border-color: rgba(255, 255, 255, 0.4);
+  background: #f1f5f9;
+  transform: translateX(-2px);
+  border-color: #cbd5e1;
 }
 
 .header-content {
@@ -46,8 +48,8 @@
 
 .header-icon {
   font-size: 48px;
-  color: #38bdf8;
-  filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.4));
+  color: #0057b8;
+  filter: none;
 }
 
 .project-details-header-copy {
@@ -61,12 +63,13 @@
   font-size: 32px;
   font-weight: 800;
   letter-spacing: -0.5px;
+  color: #003d82;
 }
 
 .header-content p {
   margin: 0;
   font-size: 16px;
-  color: #94a3b8;
+  color: #64748b;
   font-weight: 400;
 }
 
@@ -75,28 +78,28 @@
 }
 
 .project-details-progress .progress-breadcrumb__item {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.15);
-  color: #cbd5e1;
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #475569;
 }
 
 .project-details-progress .progress-breadcrumb__item.is-completed {
-  color: #bae6fd;
-  border-color: rgba(56, 189, 248, 0.3);
+  color: #0057b8;
+  border-color: rgba(0, 87, 184, 0.25);
 }
 
 .project-details-progress .progress-breadcrumb__item.is-active {
-  background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
+  background: linear-gradient(135deg, #0057b8 0%, #006edd 100%);
   color: #ffffff;
   border: none;
 }
 
 .project-details-progress .progress-breadcrumb__line {
-  background: rgba(255, 255, 255, 0.15);
+  background: #e2e8f0;
 }
 
 .project-details-progress .progress-breadcrumb__separator.is-active .progress-breadcrumb__line {
-  background: linear-gradient(135deg, #0ea5e9 0%, #7dd3fc 100%);
+  background: linear-gradient(135deg, #0057b8 0%, #006edd 100%);
 }
 
 .project-details-content {
@@ -435,8 +438,48 @@ body.dark-mode .project-details {
 }
 
 body.dark-mode .project-details-header {
-  background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+  background: #0f172a;
   border-bottom: 1px solid #1e293b;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+  color: #f8fafc;
+}
+
+body.dark-mode .project-details-header .back-btn {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+body.dark-mode .project-details-header .back-btn:hover {
+  background: #334155;
+  border-color: #475569;
+}
+
+body.dark-mode .project-details-header .header-icon {
+  color: #38bdf8;
+}
+
+body.dark-mode .project-details-header .header-content h1 {
+  color: #f8fafc;
+}
+
+body.dark-mode .project-details-header .header-content p {
+  color: #94a3b8;
+}
+
+body.dark-mode .project-details-progress .progress-breadcrumb__item {
+  background: #1e293b;
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+body.dark-mode .project-details-progress .progress-breadcrumb__item.is-completed {
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.25);
+}
+
+body.dark-mode .project-details-progress .progress-breadcrumb__line {
+  background: #334155;
 }
 
 body.dark-mode .stats-section h2,
@@ -483,4 +526,30 @@ body.dark-mode .breakdown-track {
 body.dark-mode .area-group h3 {
   color: #e2e8f0;
   border-left-color: #0ea5e9;
+}
+
+/* ========================================
+   INLINE STYLES REFACTORADOS (BEM: project-details__)
+   ======================================== */
+
+.project-details__nav-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.project-details__nav-title {
+  font-size: 18px;
+  margin: 0;
+}
+
+.project-details__back-row {
+  width: 100%;
+  padding: 0 40px;
+  margin-top: -64px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: flex-start;
+  position: relative;
+  z-index: 10;
 }
