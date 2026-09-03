@@ -285,7 +285,7 @@
 /* ========================================
    DASHBOARD CONTENT & STATS
    ======================================== */
-.dashboard-content { max-width: 1400px; margin: 0 auto; padding: 0 24px; margin-top: -20px; }
+.dashboard-content { max-width: 1400px; margin: 0 auto; padding: 0 24px; margin-top: 24px; }
 
 .stats-container {
   display: grid;

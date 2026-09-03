@@ -22,6 +22,7 @@ const DynamicNavbar = ({
   title = "Portal RV360",
   subtitle = "Sistema de Visualización 360°",
   middleContent,
+  hideSpacer = false,
   scenes,
   currentScene,
   onSceneSelect,
@@ -59,7 +60,7 @@ const DynamicNavbar = ({
       return;
     }
     const role = currentUser?.role;
-    if (role === "admin" || role === "project_admin") {
+    if (role == "admin" || role === "project_admin") {
       navigate("/admin");
     } else {
       navigate("/gallery");
@@ -175,7 +176,7 @@ const DynamicNavbar = ({
           </div>
         </div>
       </header>
-     
+      {!hideSpacer &&<div style={{ height: '80px', width: '100%', display: 'flow-root', flexShrink: 0 }} aria-hidden="true" />}
 
       <MapModal
         isOpen={showMapModal}

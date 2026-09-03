@@ -60,6 +60,7 @@ export default function ProjectEditorView({
     <div className="project-editor modern-editor">
       <DynamicNavbar
         showBackButton={false}
+        hideSpacer={true}
         middleContent={
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             {dynamicNavbarTitle}
