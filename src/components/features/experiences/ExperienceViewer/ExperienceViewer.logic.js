@@ -1,8 +1,54 @@
-import { useEffect, useMemo, useState, useRef } from "react";
-import projectService from "../../../../api/services/projectService";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import projectService from "../../../../services/ProjectService";
 import { getSceneYawOffsetDeg, normalizeYawDeg } from "../../../../helpers/sceneCalibration";
+import { getOrderedVisibleZones } from "../../../../components/features/experiences/utils/zoneNavigation";
 
-export const useExperienceViewerLogic = ({ selectedExperience }) => {
+const getOptimalImage = (baseUrl) => {
+  if (!baseUrl || typeof baseUrl !== 'string') return baseUrl;
+  
+  try {
+    // Detectar capacidad del dispositivo
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isTablet = /iPad|Android(?!.*Mobile)/i.test(navigator.userAgent);
+    const screenWidth = window.innerWidth;
+    const connectionType = navigator.connection?.effectiveType || '4g';
+    
+    // Decidir resolución
+    let resolution = 'hd';
+    
+    if (isMobile || connectionType === '2g' || connectionType === '3g') {
+      resolution = 'sd';
+    } else if (isTablet || screenWidth < 1024 || connectionType === 'slow-2g') {
+      resolution = 'hd';
+    } else if (screenWidth >= 2560 && connectionType === '4g') {
+      resolution = '8k';
+    } else if (screenWidth >= 1440) {
+      resolution = '4k';
+    }
+    
+    // Si la URL ya tiene parámetros, no la modifiques
+    if (baseUrl.includes('?')) return baseUrl;
+    
+    // Añadir sufijo de resolución
+    const lastDot = baseUrl.lastIndexOf('.');
+    if (lastDot === -1) return baseUrl;
+    
+    const base = baseUrl.substring(0, lastDot);
+    const ext = baseUrl.substring(lastDot);
+    
+    // Si ya tiene resolución, no la modifiques
+    if (base.endsWith('-sd') || base.endsWith('-hd') || 
+        base.endsWith('-4k') || base.endsWith('-8k')) {
+      return baseUrl;
+    }
+    
+    return `${base}-${resolution}${ext}`;
+  } catch {
+    return baseUrl;
+  }
+};
+
+export const useExperienceViewerLogic = ({ selectedExperience, projectId, isPublicTour }) => {
   const [project, setProject] = useState(null);
   const [allProjects, setAllProjects] = useState([]);
   const [scene, setScene] = useState(null);
@@ -12,14 +58,14 @@ export const useExperienceViewerLogic = ({ selectedExperience }) => {
   const [infoSidebarOpen, setInfoSidebarOpen] = useState(false);
   const [currentInfoContent, setCurrentInfoContent] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [autoRotate, setAutoRotate] = useState(true);
+  const [autoRotate, setAutoRotate] = useState(false);
   const [userInteracting, setUserInteracting] = useState(false);
-  const [showCarousel, setShowCarousel] = useState(true);
-  const [currentHfov, setCurrentHfov] = useState(140);
-  const [currentYaw, setCurrentYaw] = useState(0);
-  const [currentPitch, setCurrentPitch] = useState(0);
-  const [mapOverlayOpen, setMapOverlayOpen] = useState(false);
+
+  // States related to zones/maps
   const [showZonesList, setShowZonesList] = useState(true);
+  const [mapOverlayOpen, setMapOverlayOpen] = useState(false);
+  const [forcedMapZoneId, setForcedMapZoneId] = useState(null);
+  const [showCarousel, setShowCarousel] = useState(true);
   const [activeZoneId, setActiveZoneId] = useState(null);
   const [pannellumRef, setPannellumRef] = useState(null);
 
@@ -31,11 +77,27 @@ export const useExperienceViewerLogic = ({ selectedExperience }) => {
 
   useEffect(() => {
     (async () => {
-      const active = await projectService.getActiveProject();
+      let active = null;
+      if (projectId) {
+        active = await projectService.getProjectById(projectId);
+        if (active) {
+          projectService.setActiveProject(active);
+        }
+      }
+      
+      if (!active) {
+        active = await projectService.getActiveProject();
+      }
       setProject(active);
+      setScene(null); // Clear previous scene to avoid showing old project data
     })();
-    projectService.getAllProjects().then(setAllProjects).catch(console.error);
-  }, []);
+    
+    if (isPublicTour) {
+      projectService.getPublicProjects().then(setAllProjects).catch(console.error);
+    } else {
+      projectService.getAllProjects().then(setAllProjects).catch(console.error);
+    }
+  }, [projectId, isPublicTour]);
 
   const scenes = useMemo(() => project?.scenes || {}, [project]);
   const sceneKeys = useMemo(() => Object.keys(scenes), [scenes]);
@@ -46,7 +108,6 @@ export const useExperienceViewerLogic = ({ selectedExperience }) => {
     if (experienceOrSceneKey && scenes[experienceOrSceneKey]) {
       return { ...scenes[experienceOrSceneKey], key: experienceOrSceneKey };
     }
-
     if (experienceOrSceneKey) {
       const sceneInZoneKey = sceneKeys.find(k => (scenes[k]?.zoneId || scenes[k]?.map?.zoneId) === experienceOrSceneKey);
       if (sceneInZoneKey) {
@@ -54,12 +115,28 @@ export const useExperienceViewerLogic = ({ selectedExperience }) => {
       }
     }
 
-    const savedKey = localStorage.getItem("lastSceneKey");
+    const initialSceneId = project?.settings?.initialSceneId;
+    if (initialSceneId && scenes[initialSceneId]) {
+      return { ...scenes[initialSceneId], key: initialSceneId };
+    }
+
+    const savedKey = localStorage.getItem(`lastSceneKey_${projectId || project?.id}`);
     if (savedKey && scenes[savedKey]) {
       return { ...scenes[savedKey], key: savedKey };
     }
     if (savedKey) {
       const sceneInZoneKey = sceneKeys.find(k => (scenes[k]?.zoneId || scenes[k]?.map?.zoneId) === savedKey);
+      if (sceneInZoneKey) {
+        return { ...scenes[sceneInZoneKey], key: sceneInZoneKey };
+      }
+    }
+
+    const startScene = project?.experiences?.[0]?.startScene || project?.experiences?.[0]?.id;
+    if (startScene && scenes[startScene]) {
+      return { ...scenes[startScene], key: startScene };
+    }
+    if (startScene) {
+      const sceneInZoneKey = sceneKeys.find(k => (scenes[k]?.zoneId || scenes[k]?.map?.zoneId) === startScene);
       if (sceneInZoneKey) {
         return { ...scenes[sceneInZoneKey], key: sceneInZoneKey };
       }
@@ -76,15 +153,24 @@ export const useExperienceViewerLogic = ({ selectedExperience }) => {
         next.add(scene.key);
         return next;
       });
+      
+      // Update URL to match current scene (without reloading page)
+      if (project?.id && scene.key) {
+        const basePath = isPublicTour ? '/public-tour' : '/project';
+        const newUrl = `${basePath}/${project.id}/${isPublicTour ? scene.key : `experience/${scene.key}`}`;
+        if (window.location.pathname !== newUrl) {
+          window.history.replaceState(null, '', newUrl);
+        }
+      }
     }
-  }, [scene?.key]);
+  }, [scene?.key, project?.id, isPublicTour]);
 
   useEffect(() => {
-    if (!sceneKeys.length) return;
+    if (!sceneKeys.length || !project) return;
     const initial = getInitialScene(selectedExperience);
-    if (initial) {
+    if (initial && (!scene || scene.key !== initial.key || (scene && !scenes[scene.key]))) {
       setScene(initial);
-      localStorage.setItem("lastSceneKey", initial.key);
+      localStorage.setItem(`lastSceneKey_${project.id}`, initial.key);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedExperience, project, sceneKeys.length]);
@@ -103,59 +189,74 @@ export const useExperienceViewerLogic = ({ selectedExperience }) => {
       // Solo hacer fallback al primer experience si no tenemos nada activo
       setActiveZoneId(prev => prev || project.experiences[0].id);
     }
-  }, [scene, project]);
+
+    // GESTIÓN DE MEMORIA: Pre-cargar texturas de hotspots adyacentes limitando la RAM (Caché inteligente)
+    if (scene && scene.hotSpots) {
+      const MAX_CACHE = 5;
+      if (!window.__panoramaCache) window.__panoramaCache = new Map();
+      const cache = window.__panoramaCache;
+
+      const adjacentKeys = Object.values(scene.hotSpots)
+        .filter(h => h.cssClass === 'moveScene' && h.scene)
+        .map(h => h.scene);
+
+      adjacentKeys.slice(0, MAX_CACHE).forEach(key => {
+        const targetScene = scenes[key];
+        if (targetScene && targetScene.image) {
+          const imgUrl = targetScene.image;
+          if (!cache.has(imgUrl)) {
+            const img = new Image();
+            img.src = imgUrl;
+            cache.set(imgUrl, img);
+            if (cache.size > MAX_CACHE) {
+              const firstKey = cache.keys().next().value;
+              cache.delete(firstKey);
+            }
+          }
+        }
+      });
+    }
+  }, [scene, project, scenes]);
+
+  // GESTIÓN DE MEMORIA: Forzar la limpieza del WebGLRenderer al desmontar
+  useEffect(() => {
+    return () => {
+      if (pannellumRef) {
+        try {
+          const viewer = pannellumRef.getViewer();
+          if (viewer && typeof viewer.destroy === 'function') {
+            viewer.destroy();
+          }
+        } catch (e) {
+          console.warn("Error cleaning up WebGL context", e);
+        }
+      }
+    };
+  }, [pannellumRef]);
+
+  const currentYawRef = useRef(0);
+  const currentPitchRef = useRef(0);
+  const currentHfovRef = useRef(140);
 
   const sceneKeySafe = scene?.key || null;
   const mapHeading = useMemo(() => {
     if (!sceneKeySafe) return 0;
-    return normalizeYawDeg((currentYaw || 0) + getSceneYawOffsetDeg(sceneKeySafe));
-  }, [sceneKeySafe, currentYaw]);
+    return normalizeYawDeg((currentYawRef.current || 0) + getSceneYawOffsetDeg(sceneKeySafe));
+  }, [sceneKeySafe]); // Ref removed from deps since it doesn't trigger renders
 
   useEffect(() => {
     if (!scene) return;
-    setCurrentYaw(scene.yaw || 0);
-    setCurrentPitch(scene.pitch || 0);
-    setCurrentHfov(project?.settings?.defaultHfov || 140);
+    currentYawRef.current = scene.yaw || 0;
+    currentPitchRef.current = scene.pitch || 0;
+    currentHfovRef.current = project?.settings?.defaultHfov || 140;
   }, [scene, project]);
-
-  useEffect(() => {
-    let rafId = null;
-
-    const updateYawHfov = () => {
-      if (pannellumRef) {
-        try {
-          const viewer = pannellumRef.getViewer();
-          if (viewer && typeof viewer.getYaw === "function") {
-            const yaw = viewer.getYaw();
-            const hfov = viewer.getHfov();
-            const pitch =
-              typeof viewer.getPitch === "function"
-                ? viewer.getPitch()
-                : currentPitch;
-
-            setCurrentYaw(yaw);
-            setCurrentHfov(hfov);
-            setCurrentPitch(pitch);
-          }
-        } catch (e) {
-          console.error("Error en RAF:", e);
-        }
-      }
-      rafId = requestAnimationFrame(updateYawHfov);
-    };
-
-    rafId = requestAnimationFrame(updateYawHfov);
-    return () => {
-      if (rafId) cancelAnimationFrame(rafId);
-    };
-  }, [pannellumRef, currentPitch]);
 
   const navigateToScenePreserveOrientation = (nextKey) => {
     const nextScene = scenes[nextKey];
     if (!nextScene) return;
 
-    let yawToKeep = currentYaw || 0;
-    let pitchToKeep = currentPitch || 0;
+    let yawToKeep = currentYawRef.current || 0;
+    let pitchToKeep = currentPitchRef.current || 0;
 
     try {
       const viewer = pannellumRef?.getViewer?.();
@@ -172,19 +273,52 @@ export const useExperienceViewerLogic = ({ selectedExperience }) => {
     const globalHeading = normalizeYawDeg(yawToKeep + currentOffset);
     const nextLocalYaw = normalizeYawDeg(globalHeading - nextOffset);
 
-    setCurrentYaw(nextLocalYaw);
-    setCurrentPitch(pitchToKeep);
+    currentYawRef.current = nextLocalYaw;
+    currentPitchRef.current = pitchToKeep;
 
     const newScene = { ...nextScene, key: nextKey, yaw: nextLocalYaw, pitch: pitchToKeep };
     setScene(newScene);
-    localStorage.setItem("lastSceneKey", nextKey);
+    localStorage.setItem(`lastSceneKey_${project?.id}`, nextKey);
   };
 
   const getNavPreview = (element) => {
     if (element?.previewImage) return element.previewImage;
     const target = scenes?.[element?.scene];
     if (!target) return null;
-    return target.previewImage || target.image || null;
+    if (target.thumbnail) return target.thumbnail;
+    if (target.previewImage) return target.previewImage;
+    const full = target.image || null;
+    if (!full) return null;
+    try {
+      const u = new URL(full, window.location.origin);
+      const pathname = u.pathname;
+      const m = pathname.match(/\/uploads\/((.+)(\.[^./]+))$/);
+      if (m) {
+        const [, , base, ext] = m;
+        u.pathname = `/uploads/thumbs/${base}.thumb${ext || ".jpg"}`;
+        return u.toString();
+      }
+    } catch {}
+    return full;
+  };
+
+  const getThumbnailFor = (sceneObj) => {
+    if (!sceneObj) return null;
+    if (sceneObj.thumbnail) return sceneObj.thumbnail;
+    if (sceneObj.previewImage) return sceneObj.previewImage;
+    const full = sceneObj.image || null;
+    if (!full) return null;
+    try {
+      const u = new URL(full, window.location.origin);
+      const pathname = u.pathname;
+      const m = pathname.match(/\/uploads\/((.+)(\.[^./]+))$/);
+      if (m) {
+        const [, , base, ext] = m;
+        u.pathname = `/uploads/thumbs/${base}.thumb${ext || ".jpg"}`;
+        return u.toString();
+      }
+    } catch {}
+    return full;
   };
 
   const handleMiniMapClick = (sceneKey) => navigateToScenePreserveOrientation(sceneKey);
@@ -201,16 +335,16 @@ export const useExperienceViewerLogic = ({ selectedExperience }) => {
 
   const handleZoomIn = () => {
     if (!pannellumRef) return;
-    const newHfov = Math.max(currentHfov - 10, 80);
+    const newHfov = Math.max(currentHfovRef.current - 10, 80);
     pannellumRef.getViewer().setHfov(newHfov);
-    setCurrentHfov(newHfov);
+    currentHfovRef.current = newHfov;
   };
 
   const handleZoomOut = () => {
     if (!pannellumRef) return;
-    const newHfov = Math.min(currentHfov + 10, 150);
+    const newHfov = Math.min(currentHfovRef.current + 10, 150);
     pannellumRef.getViewer().setHfov(newHfov);
-    setCurrentHfov(newHfov);
+    currentHfovRef.current = newHfov;
   };
 
   const activeSceneKeys = useMemo(() => {
@@ -223,18 +357,79 @@ export const useExperienceViewerLogic = ({ selectedExperience }) => {
     return sceneKeys;
   }, [sceneKeys, scenes, scene]);
 
+  const zonesNavigationList = useMemo(() => {
+    const visibleZones = getOrderedVisibleZones(project);
+    if (visibleZones.length) {
+      return visibleZones.map(e => {
+        const id = e.id;
+        const firstScene =
+          (e.startScene && scenes[e.startScene])
+            ? e.startScene
+            : sceneKeys.find(k => (scenes[k]?.zoneId || scenes[k]?.map?.zoneId || scenes[k]?.zone) === id) || null;
+        return {
+          id,
+          name: e.name || String(id),
+          image: e.image || null,
+          firstSceneKey: firstScene,
+        };
+      });
+    }
+
+    const byId = new Map();
+    for (const k of sceneKeys) {
+      const s = scenes[k] || {};
+      const zid = s?.zoneId || s?.map?.zoneId || s?.zone;
+      if (!zid) continue;
+      if (byId.has(String(zid))) {
+        const row = byId.get(String(zid));
+        if (!row.firstSceneKey) row.firstSceneKey = k;
+        continue;
+      }
+      byId.set(String(zid), {
+        id: String(zid),
+        name: s?.zoneName || String(zid),
+        image: s?.image || null,
+        firstSceneKey: k,
+      });
+    }
+
+    if (byId.size) return [...byId.values()];
+
+    if (sceneKeys.length) {
+      return [{
+        id: "all",
+        name: "Todas las escenas",
+        image: scenes[sceneKeys[0]]?.image || null,
+        firstSceneKey: sceneKeys[0],
+      }];
+    }
+    return [];
+  }, [project, scenes, sceneKeys]);
+
+  const changeZone = useCallback((zoneId) => {
+    const target = zonesNavigationList.find(z => String(z.id) === String(zoneId));
+    if (!target) return;
+    if (target.firstSceneKey && scenes[target.firstSceneKey]) {
+      navigateToScenePreserveOrientation(target.firstSceneKey);
+    }
+    setActiveZoneId(String(zoneId));
+    if (target.firstSceneKey && project?.id) localStorage.setItem(`lastSceneKey_${project.id}`, target.firstSceneKey);
+  }, [zonesNavigationList, scenes, navigateToScenePreserveOrientation, project]);
+
   const handlePrevious = () => {
-    if (!activeSceneKeys.length || !scene?.key) return;
-    const currentIndex = activeSceneKeys.indexOf(scene.key);
-    const previousIndex = currentIndex > 0 ? currentIndex - 1 : activeSceneKeys.length - 1;
-    navigateToScenePreserveOrientation(activeSceneKeys[previousIndex]);
+    if (!zonesNavigationList.length || !activeZoneId) return;
+    const currentZoneIndex = zonesNavigationList.findIndex(z => String(z.id) === String(activeZoneId));
+    if (currentZoneIndex === -1) return;
+    const prevZoneIndex = currentZoneIndex > 0 ? currentZoneIndex - 1 : zonesNavigationList.length - 1;
+    changeZone(zonesNavigationList[prevZoneIndex].id);
   };
 
   const handleNext = () => {
-    if (!activeSceneKeys.length || !scene?.key) return;
-    const currentIndex = activeSceneKeys.indexOf(scene.key);
-    const nextIndex = currentIndex < activeSceneKeys.length - 1 ? currentIndex + 1 : 0;
-    navigateToScenePreserveOrientation(activeSceneKeys[nextIndex]);
+    if (!zonesNavigationList.length || !activeZoneId) return;
+    const currentZoneIndex = zonesNavigationList.findIndex(z => String(z.id) === String(activeZoneId));
+    if (currentZoneIndex === -1) return;
+    const nextZoneIndex = currentZoneIndex < zonesNavigationList.length - 1 ? currentZoneIndex + 1 : 0;
+    changeZone(zonesNavigationList[nextZoneIndex].id);
   };
 
   const handleMoveUp = () => {
@@ -289,10 +484,12 @@ export const useExperienceViewerLogic = ({ selectedExperience }) => {
     carouselRef.current.scrollLeft = scrollLeft.current - walk;
   };
 
+  const optimizedScene = scene ? { ...scene, image: getOptimalImage(scene.image) } : scene;
+
   return {
     project,
     allProjects,
-    scene,
+    scene: optimizedScene,
     scenes,
     sceneKeys,
     activeSceneKeys,
@@ -305,10 +502,11 @@ export const useExperienceViewerLogic = ({ selectedExperience }) => {
     autoRotate,
     userInteracting,
     showCarousel, setShowCarousel,
-    currentHfov,
-    currentYaw,
-    currentPitch,
+    currentHfov: currentHfovRef.current,
+    currentYaw: currentYawRef.current,
+    currentPitch: currentPitchRef.current,
     mapOverlayOpen, setMapOverlayOpen,
+    forcedMapZoneId, setForcedMapZoneId,
     showZonesList, setShowZonesList,
     activeZoneId, setActiveZoneId,
     pannellumRef, setPannellumRef,
@@ -316,6 +514,7 @@ export const useExperienceViewerLogic = ({ selectedExperience }) => {
     isDragging,
     navigateToScenePreserveOrientation,
     getNavPreview,
+    getThumbnailFor,
     handleMiniMapClick,
     handleFullScreen,
     handlePlayPause,
@@ -329,6 +528,8 @@ export const useExperienceViewerLogic = ({ selectedExperience }) => {
     handleMouseDown,
     handleMouseLeave,
     handleMouseUp,
-    handleMouseMove
+    handleMouseMove,
+    zonesNavigationList,
+    changeZone,
   };
 };
