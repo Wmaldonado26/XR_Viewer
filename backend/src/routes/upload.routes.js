@@ -14,4 +14,11 @@ router.post(
   asyncHandler(uploadController.uploadFile)
 );
 
+router.delete(
+  "/",
+  requireAuth,
+  requireRole("admin", "project_admin"),
+  asyncHandler(uploadController.deleteFile)
+);
+
 module.exports = router;

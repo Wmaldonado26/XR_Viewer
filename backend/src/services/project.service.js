@@ -107,6 +107,8 @@ async function updateProject(projectId, project) {
   };
 }
 
+const { deleteCloudinaryImage } = require("./upload.service");
+
 async function deleteProject(projectId) {
   const project = await prisma.project.findUnique({
     where: { id: projectId },
@@ -117,17 +119,12 @@ async function deleteProject(projectId) {
     throw createHttpError(404, "Proyecto no encontrado");
   }
 
+  // Eliminar físicamente todas las imágenes (Cloudinary o Local)
   for (const image of project.images) {
-    const filePath = path.join(UPLOADS_DIR, image.filename);
-    if (fs.existsSync(filePath)) {
-      try {
-        fs.unlinkSync(filePath);
-      } catch {
-        // Ignora archivos que ya no existan o estén bloqueados momentáneamente.
-      }
-    }
+    await deleteCloudinaryImage(image.filename);
   }
 
+  // Esto eliminará el proyecto y los registros de la tabla Image en cascada
   await prisma.project.delete({
     where: { id: projectId },
   });

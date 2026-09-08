@@ -43,6 +43,61 @@ async function saveUpload(req) {
   };
 }
 
+async function deleteCloudinaryImage(filename) {
+  if (process.env.CLOUDINARY_URL) {
+    try {
+      const cloudinary = require("cloudinary").v2;
+      console.log(`[UploadService] Eliminando de Cloudinary: ${filename}`);
+      await cloudinary.uploader.destroy(filename);
+    } catch (error) {
+      console.error(`[UploadService] Error eliminando ${filename} de Cloudinary:`, error);
+    }
+  } else {
+    // Si no usa Cloudinary, borrado local
+    const fs = require("fs");
+    const path = require("path");
+    const { UPLOADS_DIR } = require("../config/env");
+    const filePath = path.join(UPLOADS_DIR, filename);
+    if (fs.existsSync(filePath)) {
+      try {
+        fs.unlinkSync(filePath);
+      } catch (e) {
+        console.error(`[UploadService] Error eliminando ${filePath}:`, e);
+      }
+    }
+  }
+}
+
+async function deleteUpload(url) {
+  if (!url) {
+    throw createHttpError(400, "URL requerida para eliminar");
+  }
+
+  const cleanUrl = url.split("?")[0];
+  
+  // Buscar la imagen en Prisma por su URL
+  const image = await prisma.image.findFirst({
+    where: { url: { startsWith: cleanUrl } },
+  });
+
+  if (image) {
+    await deleteCloudinaryImage(image.filename);
+    await prisma.image.delete({ where: { id: image.id } });
+    return { success: true, message: "Imagen eliminada de Cloudinary y Prisma" };
+  } else {
+    // A veces la imagen no está en Prisma o se perdió el registro, intentamos borrar en base a la URL de todos modos
+    const match = cleanUrl.match(/(cotecmar_uploads\/[^/.]+)/);
+    if (match) {
+      await deleteCloudinaryImage(match[1]);
+      return { success: true, message: "Imagen eliminada de Cloudinary (registro huérfano)" };
+    }
+  }
+
+  return { success: false, message: "Imagen no encontrada" };
+}
+
 module.exports = {
   saveUpload,
+  deleteUpload,
+  deleteCloudinaryImage,
 };

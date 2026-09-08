@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import projectService from "../../../../api/services/projectService";
-import authService from "../../../../api/services/authService";
+import projectService from "../../../../services/ProjectService";
+import authService from "../../../../services/AuthService";
 
 export const useProjectManagerLogic = ({
   onSelectProject,

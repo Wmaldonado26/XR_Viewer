@@ -15,6 +15,9 @@ export const useLandingPageLogic = () => {
   const logoImageRef = useRef(null);
   const videoBgRef = useRef(null);
   const scrollArrowRef = useRef(null);
+  const fullScreenCardRef = useRef(null);
+  const fullScreenImageRef = useRef(null);
+  const fullScreenTextRef = useRef(null);
   const [stackingCards, setStackingCards] = useState([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLightMode, setIsLightMode] = useState(false);
@@ -101,8 +104,38 @@ export const useLandingPageLogic = () => {
           },
           0.5 
         );
+
+      if (fullScreenCardRef.current && fullScreenImageRef.current && fullScreenTextRef.current) {
+        gsap.fromTo(
+          fullScreenImageRef.current,
+          { scale: 1 },
+          {
+            scale: 1.15,
+            scrollTrigger: {
+              trigger: fullScreenCardRef.current,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: true,
+            }
+          }
+        );
+
+        gsap.fromTo(
+          fullScreenTextRef.current,
+          { y: 150, opacity: 0, scale: 0.9 },
+          {
+            y: 0, opacity: 1, scale: 1,
+            scrollTrigger: {
+              trigger: fullScreenCardRef.current,
+              start: "top 80%",
+              end: "center center",
+              scrub: true,
+            }
+          }
+        );
+      }
         
-    }, scrollSectionRef);
+    });
 
     return () => ctx.revert();
   }, []);
@@ -117,6 +150,9 @@ export const useLandingPageLogic = () => {
     logoImageRef,
     videoBgRef,
     scrollArrowRef,
+    fullScreenCardRef,
+    fullScreenImageRef,
+    fullScreenTextRef,
     stackingCards,
     isMenuOpen,
     setIsMenuOpen,

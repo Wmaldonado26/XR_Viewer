@@ -8,10 +8,10 @@ body .project-editor.modern-editor {
   flex-direction: column;
   height: 100vh;
   background-color: #f8fafc;
-  color: #0f172a;
+  color: #003d82;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   overflow: hidden;
-  padding-top: 0 !important;
+  padding-top: 80px !important;
 }
 
 /* ========================================
@@ -38,7 +38,7 @@ body .project-editor.modern-editor {
 .btn-back-modern {
   background: transparent;
   border: 1px solid #cbd5e1;
-  color: #475569;
+  color: #003d82;
   padding: 0.5rem 1rem;
   border-radius: 6px;
   font-size: 0.875rem;
@@ -49,14 +49,14 @@ body .project-editor.modern-editor {
 
 .btn-back-modern:hover {
   background: #f1f5f9;
-  color: #0f172a;
+  color: #003d82;
 }
 
 .header-title-group h1 {
   font-size: 1.25rem;
   font-weight: 700;
   margin: 0;
-  color: #0f172a; /* Black text */
+  color: #003d82; /* Black text */
 }
 
 .status-badge {
@@ -70,7 +70,7 @@ body .project-editor.modern-editor {
 
 .status-badge.active { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
 .status-badge.draft { background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; }
-.status-badge.archived { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+.status-badge.archived { background: #f1f5f9; color: #003d82; border: 1px solid #e2e8f0; }
 
 .header-center-modern {
   display: flex;
@@ -80,7 +80,7 @@ body .project-editor.modern-editor {
 
 .save-notice {
   font-size: 0.875rem;
-  color: #64748b;
+  color: #003d82;
   font-style: italic;
 }
 
@@ -106,7 +106,7 @@ body .project-editor.modern-editor {
 .btn-reload-modern {
   background: transparent;
   border: 1px solid #cbd5e1;
-  color: #475569;
+  color: #003d82;
   padding: 0.5rem 1rem;
   border-radius: 6px;
   font-size: 0.875rem;
@@ -117,7 +117,7 @@ body .project-editor.modern-editor {
 
 .btn-reload-modern:hover {
   background: #f1f5f9;
-  color: #0f172a;
+  color: #003d82;
 }
 
 .btn-save-modern {
@@ -143,7 +143,7 @@ body .project-editor.modern-editor {
 
 .btn-save-modern:disabled {
   background: #e2e8f0;
-  color: #94a3b8;
+  color: #0057b8;
   cursor: not-allowed;
   box-shadow: none;
 }
@@ -164,7 +164,7 @@ body .project-editor.modern-editor {
   background: transparent;
   border: none;
   border-bottom: 3px solid transparent;
-  color: #64748b;
+  color: #003d82;
   padding: 1rem 1.25rem;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -184,7 +184,7 @@ body .project-editor.modern-editor {
 
 .tab-badge {
   background: #f1f5f9;
-  color: #475569;
+  color: #003d82;
   padding: 0.15rem 0.5rem;
   border-radius: 12px;
   font-size: 0.75rem;
@@ -193,7 +193,7 @@ body .project-editor.modern-editor {
 }
 
 .tab-modern:hover:not(.active) {
-  color: #0f172a;
+  color: #003d82;
   background: #f8fafc;
 }
 
@@ -268,7 +268,7 @@ body .project-editor.modern-editor {
 
 .stat-label {
   font-size: 0.875rem;
-  color: #64748b;
+  color: #003d82;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-weight: 700;
@@ -296,12 +296,12 @@ body .project-editor.modern-editor {
   font-size: 1.25rem;
   font-weight: 700;
   margin: 0 0 0.25rem 0;
-  color: #0f172a;
+  color: #003d82;
 }
 
 .premium-card-header p, .asset-subtitle {
   margin: 0;
-  color: #64748b;
+  color: #003d82;
   font-size: 0.875rem;
 }
 
@@ -328,7 +328,7 @@ body .project-editor.modern-editor {
 .form-group-modern label {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #334155;
+  color: #003d82;
 }
 
 .form-group-modern input,
@@ -341,7 +341,7 @@ body .project-editor.modern-editor {
   border: 1px solid #e2e8f0;
   border-radius: 10px;
   padding: 0.85rem 1.15rem;
-  color: #0f172a;
+  color: #003d82;
   font-family: inherit;
   font-size: 0.95rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -438,7 +438,7 @@ body .project-editor.modern-editor {
 }
 
 .asset-empty {
-  color: #94a3b8;
+  color: #0057b8;
   font-size: 0.9rem;
   font-style: italic;
 }
@@ -456,7 +456,7 @@ body .project-editor.modern-editor {
   gap: 0.5rem;
   background: transparent;
   border: 1px dashed #94a3b8;
-  color: #475569;
+  color: #003d82;
   padding: 0.75rem;
   width: 100%;
   border-radius: 8px;
@@ -520,7 +520,7 @@ body .project-editor.modern-editor {
 .doc-input {
   background: transparent;
   border: none;
-  color: #0f172a;
+  color: #003d82;
   font-size: 0.9rem;
   font-weight: 600;
   padding: 0;
@@ -528,7 +528,7 @@ body .project-editor.modern-editor {
 
 .doc-meta {
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: #0057b8;
 }
 
 /* ========================================
@@ -544,11 +544,11 @@ body .project-editor.modern-editor {
 .pane-title h2 {
   font-size: 1.5rem;
   margin: 0;
-  color: #0f172a;
+  color: #003d82;
 }
 
 .pane-title p {
-  color: #64748b;
+  color: #003d82;
   margin: 0.25rem 0 0 0;
   font-size: 0.9rem;
 }
@@ -601,14 +601,14 @@ body .project-editor.modern-editor {
 
 .zone-group-title h3 {
   margin: 0;
-  color: #0f172a;
+  color: #003d82;
   font-size: 1.1rem;
   font-weight: 700;
 }
 
 .zone-group-badge {
   background: #e2e8f0;
-  color: #334155;
+  color: #003d82;
   padding: 0.2rem 0.6rem;
   border-radius: 999px;
   font-size: 0.75rem;
@@ -705,7 +705,7 @@ body .project-editor.modern-editor {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #94a3b8;
+  color: #0057b8;
   gap: 0.5rem;
 }
 
@@ -732,7 +732,7 @@ body .project-editor.modern-editor {
   position: absolute;
   inset: 0;
   background: rgba(255, 255, 255, 0.8);
-  color: #0f172a;
+  color: #003d82;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -795,12 +795,12 @@ body .project-editor.modern-editor {
 
 .btn-scene-action.secondary {
   background: #e2e8f0;
-  color: #475569;
+  color: #003d82;
 }
 
 .btn-scene-action.secondary:hover {
   background: #cbd5e1;
-  color: #0f172a;
+  color: #003d82;
 }
 
 .btn-scene-action.danger-icon {
@@ -826,7 +826,7 @@ body .project-editor.modern-editor {
 .scene-filter-select {
   background: #ffffff;
   border: 1px solid #cbd5e1;
-  color: #0f172a;
+  color: #003d82;
   padding: 0.75rem 1rem;
   border-radius: 8px;
   min-width: 250px;
@@ -849,7 +849,7 @@ body .project-editor.modern-editor {
 
 .hotspot-card-modern:hover {
   transform: translateY(-4px);
-  border-color: #94a3b8;
+  border-color: #0057b8;
   box-shadow: 0 12px 20px -5px rgba(0, 51, 160, 0.08);
 }
 
@@ -902,7 +902,7 @@ body .project-editor.modern-editor {
 
 .btn-upload-small {
   background: #f1f5f9;
-  color: #475569;
+  color: #003d82;
   padding: 0.5rem 1rem;
   border-radius: 6px;
   font-size: 0.8rem;
@@ -916,7 +916,7 @@ body .project-editor.modern-editor {
 
 .btn-upload-small:hover {
   background: #e2e8f0;
-  color: #0f172a;
+  color: #003d82;
 }
 
 /* ========================================
@@ -944,7 +944,7 @@ body .project-editor.modern-editor {
 .sidebar-section h3 {
   margin: 0 0 1rem 0;
   font-size: 1rem;
-  color: #0f172a;
+  color: #003d82;
   border-bottom: 1px solid #e2e8f0;
   padding-bottom: 0.5rem;
 }
@@ -956,7 +956,7 @@ body .project-editor.modern-editor {
   gap: 0.5rem;
   background: #ffffff;
   border: 1px solid #cbd5e1;
-  color: #334155;
+  color: #003d82;
   padding: 0.75rem;
   border-radius: 8px;
   cursor: pointer;
@@ -996,7 +996,7 @@ body .project-editor.modern-editor {
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: #94a3b8;
+  color: #0057b8;
   gap: 1rem;
 }
 
@@ -1017,7 +1017,7 @@ body .project-editor.modern-editor {
   background: transparent;
   border: none;
   border-bottom: 1px solid #e2e8f0;
-  color: #475569;
+  color: #003d82;
   padding: 0.75rem;
   cursor: pointer;
   font-size: 1.2rem;
@@ -1026,7 +1026,7 @@ body .project-editor.modern-editor {
 
 .map-controls-modern button:hover {
   background: #f1f5f9;
-  color: #0f172a;
+  color: #003d82;
 }
 
 .map-pin-modern {
@@ -1056,7 +1056,7 @@ body .project-editor.modern-editor {
 
 .pin-label {
   background: rgba(255, 255, 255, 0.9);
-  color: #0f172a;
+  color: #003d82;
   border: 1px solid #cbd5e1;
   padding: 2px 6px;
   border-radius: 4px;
@@ -1077,3 +1077,213 @@ body .project-editor.modern-editor {
   .editor-header-modern { flex-direction: column; height: auto; gap: 1rem; padding: 1rem; }
   .stats-panel-modern, .form-grid-modern, .assets-grid-modern { grid-template-columns: 1fr; }
 }
+
+/* ========================================
+   INLINE STYLES REFACTORADOS (BEM: project-editor__)
+   ======================================== */
+
+.project-editor__nav-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.project-editor__nav-title {
+  font-size: 18px;
+  margin: 0;
+}
+
+.project-editor__nav-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  opacity: 0.8;
+}
+
+.project-editor__unsaved-dot {
+  display: inline-block;
+}
+
+.project-editor__header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.project-editor__btn-reload {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  padding: 8px 16px !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  transition: background 0.2s !important;
+}
+
+.project-editor__btn-save--active,
+.project-editor__btn-save--idle {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  border: none !important;
+  padding: 8px 16px !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s !important;
+  color: white !important;
+}
+
+.project-editor__btn-save--active {
+  background: #10b981 !important;
+  cursor: pointer !important;
+  opacity: 1 !important;
+  color: white !important;
+}
+
+.project-editor__btn-save--idle {
+  background: rgba(255, 255, 255, 0.1) !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+}
+
+.project-editor__btn-save--active:disabled,
+.project-editor__btn-save--idle:disabled {
+  cursor: not-allowed !important;
+}
+
+.project-editor__back-row {
+  width: 100%;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.project-editor__input-hidden {
+  display: none;
+}
+
+.project-editor__uploading-banner {
+  padding: 1rem;
+  background: #dbeafe;
+  color: #1e3a8a;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-weight: bold;
+}
+
+.project-editor__panel-zone {
+  max-height: 800px;
+}
+
+.project-editor__panel-scene {
+  max-height: 800px;
+}
+
+.project-editor__unassigned-zone {
+  cursor: pointer;
+}
+
+/* Scene Action Buttons (reemplazan onMouseEnter/onMouseLeave inline styles) */
+.project-editor__scene-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.project-editor__scene-action--hotspots {
+  color: #64748b;
+}
+.project-editor__scene-action--hotspots:hover {
+  color: #4f46e5;
+  background: #eef2ff;
+}
+
+.project-editor__scene-action--delete {
+  color: #94a3b8;
+}
+.project-editor__scene-action--delete:hover {
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+.project-editor__scene-action-label {
+  font-size: 10px;
+  font-weight: 500;
+}
+
+/* Create Zone Modal */
+.project-editor__modal-zone {
+  max-width: 500px;
+}
+
+.project-editor__zone-input-name {
+  width: 100%;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.project-editor__zone-input-wrap {
+  margin-top: 1rem;
+}
+
+.project-editor__zone-input-files {
+  width: 100%;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px dashed #ccc;
+  background: #f8fafc;
+}
+
+.project-editor__zone-files-count {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #16a34a;
+}
+
+/* Hotspot Visual Editor overlay */
+.project-editor__visual-editor-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+/* ======================================== */
+/* FIX ESPACIADOS PROJECT EDITOR (Zonas y Escenas) */
+/* ======================================== */
+.project-editor.modern-editor .dynamicnavbar__spacer {
+  display: none !important;
+}
+
+.project-editor.modern-editor .editor-content-modern {
+  padding-top: 16px !important;
+}
+
+.project-editor.modern-editor .project-editor__back-row {
+  margin-bottom: 8px !important;
+}
+
+
+
+
+
+.project-editor.modern-editor .dynamicnavbar__header {
+  position: fixed !important;
+  top: 0 !important;
+  width: 100%;
+}
+
