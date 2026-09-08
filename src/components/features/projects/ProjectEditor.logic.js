@@ -212,6 +212,28 @@ export default function useProjectEditorLogic({ projectId, onClose, onSave }) {
     }
   };
 
+  const deleteImageFromBackend = async (url) => {
+    if (!url || !url.startsWith("http")) return; // Si es blob u otra cosa
+    console.log("🗑️ Solicitando eliminación de imagen en backend:", url);
+    try {
+      const res = await fetch(UPLOAD_URL, {
+        method: "DELETE",
+        headers: {
+          ...authService.getAuthHeaders(),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ url }),
+      });
+      if (!res.ok) {
+        console.error("⚠️ Fallo al eliminar imagen en backend");
+      } else {
+        console.log("✅ Imagen eliminada de Cloudinary/Local exitosamente");
+      }
+    } catch (e) {
+      console.error("Error en deleteImageFromBackend:", e);
+    }
+  };
+
   const getZoneLabel = (zoneId) =>
     project?.experiences?.find((z) => z.id === zoneId)?.name ||
     zoneId ||
@@ -249,6 +271,9 @@ export default function useProjectEditorLogic({ projectId, onClose, onSave }) {
   };
 
   const handleRemoveThumbnail = () => {
+    if (project?.thumbnail && project.thumbnail !== "/images/default_image.png") {
+      deleteImageFromBackend(project.thumbnail);
+    }
     handleBasicInfoChange("thumbnail", "/images/default_image.png");
   };
 
@@ -262,6 +287,10 @@ export default function useProjectEditorLogic({ projectId, onClose, onSave }) {
     console.log("🖼️ Iniciando carga de thumbnail:", file.name);
 
     try {
+      if (project?.thumbnail && project.thumbnail !== "/images/default_image.png") {
+        deleteImageFromBackend(project.thumbnail);
+      }
+      
       const data = await uploadImageToBackend({ file, type: "thumbnail" });
       console.log("✅ Datos recibidos del servidor:", data);
       
@@ -313,6 +342,10 @@ export default function useProjectEditorLogic({ projectId, onClose, onSave }) {
   };
 
   const handleDeleteGalleryImage = (imgId) => {
+    const imgToDelete = project.gallery?.find(img => img.id === imgId);
+    if (imgToDelete?.src) {
+      deleteImageFromBackend(imgToDelete.src);
+    }
     setProject((prev) => ({
       ...prev,
       gallery: (prev.gallery || []).filter((img) => img.id !== imgId)
@@ -337,7 +370,8 @@ export default function useProjectEditorLogic({ projectId, onClose, onSave }) {
         format,
         size: sizeMB,
         updatedAt: new Date().toISOString().split("T")[0],
-        url: data.url
+        url: `${data.url}?t=${Date.now()}`,
+        isDocument: true
       };
       setProject((prev) => ({
         ...prev,
@@ -345,7 +379,11 @@ export default function useProjectEditorLogic({ projectId, onClose, onSave }) {
       }));
       setHasChanges(true);
     } catch (error) {
-      showError("Error al subir documento", error.message || "No se pudo subir el archivo.");
+      console.error("Error uploading document:", error);
+      showError(
+        "Error al subir el documento",
+        error.message || "No se pudo subir el documento."
+      );
     } finally {
       event.target.value = "";
     }
@@ -362,6 +400,10 @@ export default function useProjectEditorLogic({ projectId, onClose, onSave }) {
   };
 
   const handleDeleteDocument = (docId) => {
+    const docToDelete = project.attachments?.find(att => att.id === docId);
+    if (docToDelete?.url) {
+      deleteImageFromBackend(docToDelete.url);
+    }
     setProject((prev) => ({
       ...prev,
       attachments: (prev.attachments || []).filter((att) => att.id !== docId)
@@ -432,6 +474,13 @@ export default function useProjectEditorLogic({ projectId, onClose, onSave }) {
       onConfirm: () => {
         const zoneIdToDelete = project.experiences?.[index]?.id;
 
+        if (zoneIdToDelete) {
+          const mapUrl = project.settings?.mapByZone?.[zoneIdToDelete];
+          if (mapUrl) {
+            deleteImageFromBackend(mapUrl);
+          }
+        }
+
         setProject((prev) => {
           const nextExperiences = (prev.experiences || []).filter(
             (_, i) => i !== index,
@@ -481,6 +530,13 @@ export default function useProjectEditorLogic({ projectId, onClose, onSave }) {
       title: "¿Eliminar zonas seleccionadas?",
       message: `Vas a eliminar ${selectedZonesToDelete.length} zona(s). Esta acción no se puede deshacer.`,
       onConfirm: () => {
+        selectedZonesToDelete.forEach((id) => {
+          const mapUrl = project.settings?.mapByZone?.[id];
+          if (mapUrl) {
+            deleteImageFromBackend(mapUrl);
+          }
+        });
+
         setProject((prev) => {
           const nextExperiences = (prev.experiences || []).filter(
             (z) => !selectedZonesToDelete.includes(z.id)
@@ -564,6 +620,20 @@ export default function useProjectEditorLogic({ projectId, onClose, onSave }) {
       title: "¿Eliminar escena?",
       message: `Vas a eliminar "${sceneName}" y todos sus hotspots. Esta acción no se puede deshacer.`,
       onConfirm: () => {
+        const scene = project.scenes?.[sceneKey];
+        if (scene?.image) {
+          deleteImageFromBackend(scene.image);
+        }
+        if (scene?.hotSpots) {
+          Object.values(scene.hotSpots).forEach(hs => {
+            if (hs.attachments && Array.isArray(hs.attachments)) {
+              hs.attachments.forEach(att => {
+                if (att.url) deleteImageFromBackend(att.url);
+              });
+            }
+          });
+        }
+
         setProject((prev) => {
           const newScenes = { ...(prev.scenes || {}) };
           delete newScenes[sceneKey];
@@ -592,6 +662,22 @@ export default function useProjectEditorLogic({ projectId, onClose, onSave }) {
       title: "¿Eliminar escenas seleccionadas?",
       message: `Vas a eliminar ${selectedScenesToDelete.length} escena(s) y todos sus hotspots. Esta acción no se puede deshacer.`,
       onConfirm: () => {
+        selectedScenesToDelete.forEach((key) => {
+          const scene = project.scenes?.[key];
+          if (scene?.image) {
+            deleteImageFromBackend(scene.image);
+          }
+          if (scene?.hotSpots) {
+            Object.values(scene.hotSpots).forEach(hs => {
+              if (hs.attachments && Array.isArray(hs.attachments)) {
+                hs.attachments.forEach(att => {
+                  if (att.url) deleteImageFromBackend(att.url);
+                });
+              }
+            });
+          }
+        });
+
         setProject((prev) => {
           const newScenes = { ...(prev.scenes || {}) };
           let newSettings = { ...(prev.settings || {}) };
@@ -620,6 +706,9 @@ export default function useProjectEditorLogic({ projectId, onClose, onSave }) {
     if (!file) return;
 
     try {
+      if (project?.scenes?.[sceneKey]?.image) {
+        deleteImageFromBackend(project.scenes[sceneKey].image);
+      }
       const data = await uploadImageToBackend({
         file,
         type: `scene_${sceneKey}`,
@@ -642,6 +731,9 @@ export default function useProjectEditorLogic({ projectId, onClose, onSave }) {
     if (!file) return;
 
     try {
+      if (project?.settings?.mapByZone?.[zoneId]?.mapUrl) {
+        deleteImageFromBackend(project.settings.mapByZone[zoneId].mapUrl);
+      }
       const data = await uploadImageToBackend({
         file,
         type: `map_zone_${zoneId}`,
@@ -668,6 +760,9 @@ export default function useProjectEditorLogic({ projectId, onClose, onSave }) {
   };
 
   const handleRemoveMapForZone = (zoneId) => {
+    if (project?.settings?.mapByZone?.[zoneId]?.mapUrl) {
+      deleteImageFromBackend(project.settings.mapByZone[zoneId].mapUrl);
+    }
     setProject((prev) => ({
       ...prev,
       settings: {
@@ -929,6 +1024,13 @@ export default function useProjectEditorLogic({ projectId, onClose, onSave }) {
       title: "¿Eliminar hotspot?",
       message: `Vas a eliminar "${hotspotLabel}". Esta acción no se puede deshacer.`,
       onConfirm: () => {
+        const hotspot = project.scenes?.[sceneKey]?.hotSpots?.[hotspotKey];
+        if (hotspot?.attachments && Array.isArray(hotspot.attachments)) {
+          hotspot.attachments.forEach(att => {
+            if (att.url) deleteImageFromBackend(att.url);
+          });
+        }
+
         setProject((prev) => {
           const newHotspots = { ...(prev.scenes?.[sceneKey]?.hotSpots || {}) };
           delete newHotspots[hotspotKey];
@@ -1006,6 +1108,11 @@ export default function useProjectEditorLogic({ projectId, onClose, onSave }) {
   };
 
   const handleRemoveHotspotAttachment = (sceneKey, hotspotKey, index) => {
+    const attachment = project.scenes?.[sceneKey]?.hotSpots?.[hotspotKey]?.attachments?.[index];
+    if (attachment?.url) {
+      deleteImageFromBackend(attachment.url);
+    }
+    
     setProject((prev) => {
       const hs = prev.scenes?.[sceneKey]?.hotSpots?.[hotspotKey] || {};
       const current = Array.isArray(hs.attachments) ? hs.attachments : [];
