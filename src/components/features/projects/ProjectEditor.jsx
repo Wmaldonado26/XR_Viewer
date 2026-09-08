@@ -13,7 +13,7 @@ import ConfirmModal from "../../common/Modal/ConfirmModal";
 import HotspotVisualEditor from "../hotspots/HotspotVisualEditor";
 
 export default function ProjectEditorView({
-  project, isUploadingMultiple, isSaving, hasChanges, activeTab, setActiveTab,
+  project, isUploadingMultiple, multipleUploadState, handleRetryFailedUploads, handleCloseMultipleUpload, isSaving, hasChanges, activeTab, setActiveTab,
   selectedScene, setSelectedScene, visualEditorSceneKey, setVisualEditorSceneKey,
   showCreateZoneModal, newZoneName, setNewZoneName, newZoneFiles, setNewZoneFiles,
   selectedZoneId, setSelectedZoneId, zoneSearchQuery, setZoneSearchQuery,
@@ -310,9 +310,50 @@ export default function ProjectEditorView({
               </button>
             </div>
 
-            {isUploadingMultiple && (
-              <div className="project-editor__uploading-banner">
-                Subiendo imágenes, por favor espera...
+            {multipleUploadState?.isActive && (
+              <div className="project-editor__uploading-banner p-4 mb-4 rounded-xl shadow-sm border" style={{ backgroundColor: '#f0f9ff', borderColor: '#bae6fd' }}>
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="font-bold text-blue-900">
+                    Progreso de subida múltiple ({multipleUploadState.items.filter(i => i.status === 'success').length} / {multipleUploadState.items.length})
+                  </h3>
+                  <div className="flex gap-2">
+                    {multipleUploadState.items.some(i => i.status === 'error') && (
+                      <button onClick={handleRetryFailedUploads} className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-sm font-semibold">
+                        Reintentar fallidas
+                      </button>
+                    )}
+                    {multipleUploadState.items.every(i => i.status === 'success' || i.status === 'error') && (
+                      <button onClick={handleCloseMultipleUpload} className="px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-sm font-semibold">
+                        Cerrar
+                      </button>
+                    )}
+                  </div>
+                </div>
+                
+                {multipleUploadState.items.every(i => i.status === 'success') && multipleUploadState.items.length > 0 ? (
+                  <p className="text-green-700 mb-2">{multipleUploadState.items.length} / {multipleUploadState.items.length} imágenes subidas correctamente.</p>
+                ) : multipleUploadState.items.every(i => i.status === 'success' || i.status === 'error') ? (
+                  <p className="text-red-700 mb-2">
+                    {multipleUploadState.items.filter(i => i.status === 'success').length} subidas correctamente, {multipleUploadState.items.filter(i => i.status === 'error').length} fallaron.
+                  </p>
+                ) : (
+                  <p className="text-blue-700 mb-2">Subiendo imágenes, por favor espera...</p>
+                )}
+
+                <div className="max-h-32 overflow-y-auto bg-white rounded border p-2 text-sm">
+                  {multipleUploadState.items.map((item, idx) => (
+                    <div key={item.id} className="flex justify-between py-1 border-b last:border-0">
+                      <span className="truncate max-w-[200px]" title={item.name}>{item.name}</span>
+                      <span>
+                        {item.status === 'pending' && <span className="text-gray-500">⏳ En cola</span>}
+                        {item.status === 'uploading' && <span className="text-blue-500">⬆️ Subiendo...</span>}
+                        {item.status === 'success' && <span className="text-green-500">✅ Completado</span>}
+                        {item.status === 'retrying' && <span className="text-orange-500">🔄 Reintentando ({item.attempts}/3)</span>}
+                        {item.status === 'error' && <span className="text-red-500" title={item.error}>❌ Falló</span>}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 

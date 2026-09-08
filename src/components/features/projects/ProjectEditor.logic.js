@@ -8,7 +8,12 @@ import landingService from "../../../services/LandingService";
 export default function useProjectEditorLogic({ projectId, onClose, onSave }) {
   const navigate = useNavigate();
   const [project, setProject] = useState(null);
-  const [isUploadingMultiple, setIsUploadingMultiple] = useState(false);
+  const multipleUploadRef = useRef({
+    isActive: false,
+    zoneId: null,
+    items: [],
+  });
+  const [multipleUploadState, setMultipleUploadState] = useState(multipleUploadRef.current);
   const [isSaving, setIsSaving] = useState(false);
 
   const [activeTab, setActiveTab] = useState("basic");
@@ -1184,7 +1189,88 @@ export default function useProjectEditorLogic({ projectId, onClose, onSave }) {
     }
   };
 
-  const handleMultipleImagesUpload = async (zoneId, zoneName, eventOrFiles) => {
+  const syncUploadState = () => {
+    setMultipleUploadState({
+      ...multipleUploadRef.current,
+      items: [...multipleUploadRef.current.items]
+    });
+  };
+
+  const processUploadQueue = async () => {
+    if (!multipleUploadRef.current.isActive) return;
+
+    const state = multipleUploadRef.current;
+    const uploadingCount = state.items.filter(item => item.status === 'uploading').length;
+    
+    if (uploadingCount >= 3) return; // MAX_CONCURRENT_UPLOADS = 3
+
+    const pendingItems = state.items.filter(item => item.status === 'pending' || item.status === 'retrying');
+
+    if (pendingItems.length === 0) return;
+
+    const availableSlots = 3 - uploadingCount;
+    const itemsToStart = pendingItems.slice(0, availableSlots);
+
+    itemsToStart.forEach(item => {
+      item.status = 'uploading';
+      item.attempts += 1;
+      item.error = null;
+      syncUploadState();
+      
+      console.log(`[UPLOAD] Iniciando: ${item.name}`);
+      doUploadItem(item).finally(() => {
+        processUploadQueue();
+      });
+    });
+  };
+
+  const doUploadItem = async (item) => {
+    try {
+      const data = await uploadImageToBackend({
+        file: item.file,
+        type: `scene_${item.sceneKey}`,
+      });
+      const urlWithTimestamp = `${data.url}?t=${Date.now()}`;
+      
+      item.status = 'success';
+      item.url = urlWithTimestamp;
+      console.log(`[UPLOAD] Success: ${item.name}`);
+
+      setProject(prev => ({
+        ...prev,
+        scenes: {
+          ...(prev?.scenes || {}),
+          [item.sceneKey]: {
+            title: item.sceneTitle,
+            image: urlWithTimestamp,
+            pitch: 0,
+            yaw: 0,
+            hotSpots: {},
+            zoneId: multipleUploadRef.current.zoneId
+          }
+        }
+      }));
+      setHasChanges(true);
+      syncUploadState();
+
+    } catch (error) {
+      console.error(`[UPLOAD] Error: ${item.name}`, error);
+      
+      if (item.attempts < 3) {
+         console.log(`[UPLOAD] Retry ${item.attempts}/3: ${item.name}`);
+         item.status = 'retrying';
+         item.error = error.message || "Error al subir";
+         syncUploadState();
+         await new Promise(r => setTimeout(r, 2000));
+      } else {
+         item.status = 'error';
+         item.error = error.message || "Fallo permanente";
+         syncUploadState();
+      }
+    }
+  };
+
+  const handleMultipleImagesUpload = (zoneId, zoneName, eventOrFiles) => {
     let files;
     if (eventOrFiles?.target?.files) {
       files = Array.from(eventOrFiles.target.files);
@@ -1195,57 +1281,61 @@ export default function useProjectEditorLogic({ projectId, onClose, onSave }) {
     }
 
     if (!files || files.length === 0) return;
+    
+    console.log(`[UPLOAD] ${files.length} archivos seleccionados`);
 
-    setIsUploadingMultiple(true);
+    const existingScenes = Object.values(project?.scenes || {}).filter(s => s.zoneId === zoneId);
+    let startIndex = existingScenes.length;
+    
+    const newItems = files.map((file, i) => {
+       const sceneIndex = startIndex + i + 1;
+       const sceneTitle = `${zoneName}_${sceneIndex}`;
+       const sceneKey = `scene_${Date.now()}_${i}_${Math.floor(Math.random()*1000)}`;
+       return {
+          id: sceneKey,
+          file,
+          name: file.name,
+          status: 'pending',
+          attempts: 0,
+          url: null,
+          error: null,
+          sceneTitle,
+          sceneKey
+       };
+    });
 
-    try {
-      const existingScenes = Object.values(project.scenes || {}).filter(s => s.zoneId === zoneId);
-      let startIndex = existingScenes.length;
-      
-      const newScenesToAdd = {};
+    multipleUploadRef.current = {
+       isActive: true,
+       zoneId,
+       items: newItems
+    };
+    syncUploadState();
+    processUploadQueue();
 
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const sceneIndex = startIndex + i + 1;
-        const sceneTitle = `${zoneName}_${sceneIndex}`;
-        const sceneKey = `scene_${Date.now()}_${i}`;
-
-        try {
-          const data = await uploadImageToBackend({
-            file,
-            type: `scene_${sceneKey}`,
-          });
-          const urlWithTimestamp = `${data.url}?t=${Date.now()}`;
-
-          newScenesToAdd[sceneKey] = {
-            title: sceneTitle,
-            image: urlWithTimestamp,
-            pitch: 0,
-            yaw: 0,
-            hotSpots: {},
-            zoneId: zoneId
-          };
-        } catch (error) {
-          console.error("Error al subir archivo", file.name, error);
-        }
-      }
-
-      setProject(prev => ({
-        ...prev,
-        scenes: {
-          ...(prev.scenes || {}),
-          ...newScenesToAdd
-        }
-      }));
-      setHasChanges(true);
-    } catch (error) {
-      console.error("Error global en subida multiple", error);
-    } finally {
-      setIsUploadingMultiple(false);
-      if (eventOrFiles?.target) {
-        eventOrFiles.target.value = "";
-      }
+    if (eventOrFiles?.target) {
+      eventOrFiles.target.value = "";
     }
+  };
+
+  const handleRetryFailedUploads = () => {
+    let hasChanges = false;
+    multipleUploadRef.current.items.forEach(item => {
+       if (item.status === 'error') {
+          item.status = 'pending';
+          item.attempts = 0;
+          item.error = null;
+          hasChanges = true;
+       }
+    });
+    if (hasChanges) {
+       syncUploadState();
+       processUploadQueue();
+    }
+  };
+
+  const handleCloseMultipleUpload = () => {
+     multipleUploadRef.current.isActive = false;
+     syncUploadState();
   };
 
   const totalHotspots = Object.values(project?.scenes || {}).reduce((acc, sc) => acc + Object.keys(sc.hotSpots || {}).length, 0);
@@ -1288,7 +1378,10 @@ export default function useProjectEditorLogic({ projectId, onClose, onSave }) {
   return {
     navigate,
     project,
-    isUploadingMultiple,
+    isUploadingMultiple: multipleUploadState.isActive,
+    multipleUploadState,
+    handleRetryFailedUploads,
+    handleCloseMultipleUpload,
     isSaving,
     hasChanges,
     activeTab,
