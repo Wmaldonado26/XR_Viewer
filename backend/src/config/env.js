@@ -18,8 +18,14 @@ const CORS_ORIGIN = process.env.CORS_ORIGIN
 const UPLOADS_DIR = path.join(backendRoot, "uploads");
 const DATABASE_FILE = path.join(backendRoot, "cotecmar.db");
 
+function isPostgresUrl(url) {
+  return typeof url === "string" &&
+    (url.startsWith("postgres://") || url.startsWith("postgresql://"));
+}
+
 function normalizeSqliteUrl(url) {
   if (!url || typeof url !== "string") return url;
+  if (isPostgresUrl(url)) return url;
   if (!url.startsWith("file:")) return url;
 
   const filePath = url.slice("file:".length);
@@ -31,9 +37,11 @@ function normalizeSqliteUrl(url) {
   return url;
 }
 
+const DEFAULT_DATABASE_URL = `file:${DATABASE_FILE.replace(/\\/g, "/")}`;
+
 const DATABASE_URL = process.env.DATABASE_URL
   ? normalizeSqliteUrl(process.env.DATABASE_URL)
-  : `file:${DATABASE_FILE.replace(/\\/g, "/")}`;
+  : DEFAULT_DATABASE_URL;
 
 const DEFAULT_ADMIN = {
   name: process.env.DEFAULT_ADMIN_NAME || "Administrador Principal",

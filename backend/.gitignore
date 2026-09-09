@@ -28,9 +28,11 @@ yarn-error.log*
 *.db-journal
 *.mdb
 *.accdb
-backend/prisma/schema.prisma
 backend/prisma/*.db
 prisma/*.db
+
+# Uploads - user generated files
+backend/uploads/
 
 # Local JSON data / Mock databases
 node_modules//* Light Mode Overrides for Gradients */
