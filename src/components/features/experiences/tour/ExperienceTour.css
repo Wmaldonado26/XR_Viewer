@@ -1,0 +1,167 @@
+/* ExperienceTour.css */
+
+.experience-tour-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none; /* Let clicks pass through to UI if needed, but we capture events in the overlay */
+}
+
+.experience-tour-overlay.visible {
+  opacity: 1;
+}
+
+.experience-tour-overlay.interactive {
+  pointer-events: auto; /* Catch clicks so user can't interact with the app during tour */
+}
+
+.experience-tour-spotlight {
+  position: fixed;
+  border-radius: 8px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6), 0 0 15px rgba(255, 255, 255, 0.2);
+  pointer-events: none;
+  z-index: 10000;
+  transition: all 0.3s ease;
+  background: transparent;
+}
+
+/* Base dialog tooltip */
+.experience-tour-tooltip {
+  position: fixed;
+  background: #1e293b;
+  color: #f8fafc;
+  width: 320px;
+  max-width: 90vw;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  z-index: 10001;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-family: inherit;
+}
+
+.experience-tour-tooltip.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.experience-tour-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.experience-tour-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+  color: #ffffff;
+}
+
+.experience-tour-close {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 1.5rem;
+  line-height: 1;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.experience-tour-close:hover {
+  color: #ffffff;
+}
+
+.experience-tour-content {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #cbd5e1;
+  margin: 0;
+}
+
+.experience-tour-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.experience-tour-progress {
+  display: flex;
+  gap: 4px;
+}
+
+.experience-tour-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #475569;
+  transition: background 0.2s;
+}
+
+.experience-tour-dot.active {
+  background: #3b82f6;
+}
+
+.experience-tour-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.experience-tour-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.experience-tour-btn-skip {
+  background: transparent;
+  color: #94a3b8;
+}
+
+.experience-tour-btn-skip:hover {
+  color: #f1f5f9;
+}
+
+.experience-tour-btn-prev {
+  background: #334155;
+  color: #f8fafc;
+}
+
+.experience-tour-btn-prev:hover {
+  background: #475569;
+}
+
+.experience-tour-btn-next {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.experience-tour-btn-next:hover {
+  background: #1d4ed8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .experience-tour-overlay,
+  .experience-tour-spotlight,
+  .experience-tour-tooltip {
+    transition: none !important;
+  }
+}

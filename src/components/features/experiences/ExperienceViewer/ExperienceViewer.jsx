@@ -10,6 +10,7 @@ import InfoSidebar from "../../../ui/InfoSidebar/InfoSidebar";
 import DynamicNavbar from "../../../layout/Navbar/DynamicNavbar";
 import DynamicBreadcrumbs from "../../../ui/DynamicBreadcrumbs/DynamicBreadcrumbs";
 import TopMapOverlay from "../../maps/TopMapOverlay";
+import { useExperienceTour } from "../tour/useExperienceTour";
 
 import "../../../../styles/index.css";
 import "./ExperienceViewer.css";
@@ -42,6 +43,7 @@ export const ExperienceViewerTemplate = ({
     mapOverlayOpen, setMapOverlayOpen,
     forcedMapZoneId, setForcedMapZoneId,
     activeZoneId,
+    pannellumRef,
     setPannellumRef,
     carouselRef,
     isDragging,
@@ -59,6 +61,13 @@ export const ExperienceViewerTemplate = ({
     mapHeading,
   } = logic;
   const hotspotRoots = useRef(new Map());
+
+  useExperienceTour({
+    scene: scene,
+    pannellumRef: pannellumRef,
+    isReady: !!(project && scene && activeSceneKeys.length),
+    lang: "es" // Hardcoded based on project standard seen in InformationBubbleHotspot
+  });
 
 
   // GESTIÓN DE MEMORIA: Limpiar los roots de React de los hotspots al cambiar de escena o desmontar
@@ -233,7 +242,7 @@ export const ExperienceViewerTemplate = ({
 
   return (
     <>
-      <div className="viewer-container" style={{ position: 'absolute', top: '72px', left: 0, right: 0, bottom: 0, overflow: 'hidden' }}>
+      <div className="viewer-container" style={{ position: 'absolute', top: '72px', left: 0, right: 0, bottom: 0, overflow: 'hidden' }} data-tour="viewer">
         <Pannellum
           width={"100%"}
           height={"100%"}
@@ -282,6 +291,7 @@ export const ExperienceViewerTemplate = ({
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
           className="scenes-carousel-wrapper vertical-left"
+          data-tour="scenes"
         >
           {activeSceneKeys.map((key) => {
             const s = scenes[key];
@@ -337,7 +347,7 @@ export const ExperienceViewerTemplate = ({
         {/* Right Side Stack (Zones Navigation) */}
         {showZoneButton && (
           <div className="nav-action-stack right-stack">
-            <div className="zones-stack">
+            <div className="zones-stack" data-tour="zones">
 
               {logic.showZonesList && zonesNavigationList && zonesNavigationList.length >= 1 && (
                 <div className="zones-list-panel" role="list" aria-label="Navegación por zonas">
@@ -398,6 +408,7 @@ export const ExperienceViewerTemplate = ({
                   className={`nav-action-btn map-btn ${logic.showZonesList ? 'active' : 'inactive'}`}
                   onClick={() => logic.setShowZonesList(v => !v)}
                   title={logic.showZonesList ? "Ocultar lista de zonas" : "Mostrar lista de zonas"}
+                  data-tour="maps"
                 >
                   <FaMapMarkedAlt />
                 </button>
