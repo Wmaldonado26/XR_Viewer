@@ -48,7 +48,7 @@ const getOptimalImage = (baseUrl) => {
   }
 };
 
-export const useExperienceViewerLogic = ({ selectedExperience, projectId, isPublicTour }) => {
+export const useExperienceViewerLogic = ({ selectedExperience, projectId, isPublicTour, navigate }) => {
   const [project, setProject] = useState(null);
   const [allProjects, setAllProjects] = useState([]);
   const [scene, setScene] = useState(null);
@@ -76,11 +76,33 @@ export const useExperienceViewerLogic = ({ selectedExperience, projectId, isPubl
   const scrollLeft = useRef(0);
 
   useEffect(() => {
+    let isSubscribed = true;
     (async () => {
+      // Limpiar completamente el estado del visor correspondiente al proyecto anterior
+      setProject(null);
+      setScene(null);
+      setVisitedScenes(new Set());
+      setActiveZoneId(null);
+      setForcedMapZoneId(null);
+      setCurrentInfoContent(null);
+      setModalOpen(false);
+      setInfoSidebarOpen(false);
+      if (pannellumRef) {
+        try {
+          const viewer = pannellumRef.getViewer();
+          if (viewer && typeof viewer.destroy === 'function') {
+            viewer.destroy();
+          }
+        } catch (e) {
+          console.warn("Error cleaning up WebGL context", e);
+        }
+        setPannellumRef(null);
+      }
+
       let active = null;
       if (projectId) {
         active = await projectService.getProjectById(projectId);
-        if (active) {
+        if (active && isSubscribed) {
           projectService.setActiveProject(active);
         }
       }
@@ -88,15 +110,18 @@ export const useExperienceViewerLogic = ({ selectedExperience, projectId, isPubl
       if (!active) {
         active = await projectService.getActiveProject();
       }
-      setProject(active);
-      setScene(null); // Clear previous scene to avoid showing old project data
+      if (isSubscribed) {
+        setProject(active);
+      }
     })();
     
     if (isPublicTour) {
-      projectService.getPublicProjects().then(setAllProjects).catch(console.error);
+      projectService.getPublicProjects().then(p => { if(isSubscribed) setAllProjects(p); }).catch(console.error);
     } else {
-      projectService.getAllProjects().then(setAllProjects).catch(console.error);
+      projectService.getAllProjects().then(p => { if(isSubscribed) setAllProjects(p); }).catch(console.error);
     }
+
+    return () => { isSubscribed = false; };
   }, [projectId, isPublicTour]);
 
   const scenes = useMemo(() => project?.scenes || {}, [project]);
@@ -105,43 +130,52 @@ export const useExperienceViewerLogic = ({ selectedExperience, projectId, isPubl
   const getInitialScene = (experienceOrSceneKey) => {
     if (!sceneKeys.length) return null;
 
-    if (experienceOrSceneKey && scenes[experienceOrSceneKey]) {
-      return { ...scenes[experienceOrSceneKey], key: experienceOrSceneKey };
-    }
+    // PRIORIDAD 1: selectedExperience explícito de la URL.
     if (experienceOrSceneKey) {
+      if (scenes[experienceOrSceneKey]) {
+        return { ...scenes[experienceOrSceneKey], key: experienceOrSceneKey };
+      }
       const sceneInZoneKey = sceneKeys.find(k => (scenes[k]?.zoneId || scenes[k]?.map?.zoneId) === experienceOrSceneKey);
       if (sceneInZoneKey) {
         return { ...scenes[sceneInZoneKey], key: sceneInZoneKey };
       }
+      const exp = project?.experiences?.find(e => e.id === experienceOrSceneKey);
+      if (exp && exp.startScene && scenes[exp.startScene]) {
+        return { ...scenes[exp.startScene], key: exp.startScene };
+      }
     }
 
+    // PRIORIDAD 2: project.settings.initialSceneId
     const initialSceneId = project?.settings?.initialSceneId;
     if (initialSceneId && scenes[initialSceneId]) {
       return { ...scenes[initialSceneId], key: initialSceneId };
     }
 
+    // PRIORIDAD 3: localStorage (solamente si no hubo experienceId)
     const savedKey = localStorage.getItem(`lastSceneKey_${projectId || project?.id}`);
-    if (savedKey && scenes[savedKey]) {
-      return { ...scenes[savedKey], key: savedKey };
-    }
     if (savedKey) {
+      if (scenes[savedKey]) {
+        return { ...scenes[savedKey], key: savedKey };
+      }
       const sceneInZoneKey = sceneKeys.find(k => (scenes[k]?.zoneId || scenes[k]?.map?.zoneId) === savedKey);
       if (sceneInZoneKey) {
         return { ...scenes[sceneInZoneKey], key: sceneInZoneKey };
       }
     }
 
+    // PRIORIDAD 4: project.experiences[0].startScene
     const startScene = project?.experiences?.[0]?.startScene || project?.experiences?.[0]?.id;
-    if (startScene && scenes[startScene]) {
-      return { ...scenes[startScene], key: startScene };
-    }
     if (startScene) {
+      if (scenes[startScene]) {
+        return { ...scenes[startScene], key: startScene };
+      }
       const sceneInZoneKey = sceneKeys.find(k => (scenes[k]?.zoneId || scenes[k]?.map?.zoneId) === startScene);
       if (sceneInZoneKey) {
         return { ...scenes[sceneInZoneKey], key: sceneInZoneKey };
       }
     }
 
+    // PRIORIDAD 5: primera escena disponible
     const firstKey = sceneKeys[0];
     return { ...scenes[firstKey], key: firstKey };
   };
@@ -158,12 +192,12 @@ export const useExperienceViewerLogic = ({ selectedExperience, projectId, isPubl
       if (project?.id && scene.key) {
         const basePath = isPublicTour ? '/public-tour' : '/project';
         const newUrl = `${basePath}/${project.id}/${isPublicTour ? scene.key : `experience/${scene.key}`}`;
-        if (window.location.pathname !== newUrl) {
-          window.history.replaceState(null, '', newUrl);
+        if (window.location.pathname !== newUrl && navigate) {
+          navigate(newUrl, { replace: true });
         }
       }
     }
-  }, [scene?.key, project?.id, isPublicTour]);
+  }, [scene?.key, project?.id, isPublicTour, navigate]);
 
   useEffect(() => {
     if (!sceneKeys.length || !project) return;
