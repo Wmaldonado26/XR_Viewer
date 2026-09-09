@@ -67,6 +67,29 @@ const DynamicNavbar = ({
     }
   };
 
+  const profileContainerRef = React.useRef(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (menuOpen && profileContainerRef.current && !profileContainerRef.current.contains(event.target)) {
+        setMenuOpen(false);
+      }
+    };
+    const handleEscKey = (event) => {
+      if (menuOpen && event.key === 'Escape') {
+        setMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('keydown', handleEscKey);
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('keydown', handleEscKey);
+    };
+  }, [menuOpen]);
+  
   if (isLandingPage) {
     return null;
   }
@@ -132,12 +155,17 @@ const DynamicNavbar = ({
             {children}
             
             <div 
+              ref={profileContainerRef}
               className="profile-container" 
               style={{ position: 'relative', marginLeft: '8px' }}
-              onMouseEnter={() => setMenuOpen(true)}
-              onMouseLeave={() => setMenuOpen(false)}
             >
-              <button className="profile-btn" onClick={() => setMenuOpen((v) => !v)}>
+              <button 
+                className={`profile-btn ${menuOpen ? 'is-open' : ''}`} 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMenuOpen((v) => !v);
+                }}
+              >
                 <div className="avatar-wrapper">
                   <FaUserCircle className="user-avatar-icon" />
                 </div>
