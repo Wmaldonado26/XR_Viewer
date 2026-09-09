@@ -15,6 +15,7 @@ import { useExperienceTour } from "../tour/useExperienceTour";
 import "../../../../styles/index.css";
 import "./ExperienceViewer.css";
 import xrlabLogo from "../../../../assets/images/xrlab.png";
+import ubicacionIcon from "../../../../assets/images/Ubicacion.png";
 
 export const ExperienceViewerTemplate = ({
   logic,
@@ -393,7 +394,7 @@ export const ExperienceViewerTemplate = ({
                                 }
                               }}
                             >
-                              <FaMapMarkedAlt />
+                              <img src={ubicacionIcon} alt="" className="zone-map-button__icon" draggable={false} />
                             </button>
                           </div>
                         </li>
