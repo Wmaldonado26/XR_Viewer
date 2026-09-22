@@ -16,6 +16,26 @@ import "./HotspotVisualEditor.css";
 import { API_BASE_URL } from "../../../api/endpoints";
 import authService from "../../../api/services/authService";
 
+/* =========================================================
+   Helper: detección robusta de escena eliminada (soft-delete)
+   ========================================================= */
+const isSceneDeleted = (sc) => {
+  if (!sc) return true;
+  return (
+    sc.deleted === true ||
+    sc._deleted === true ||
+    sc.isDeleted === true ||
+    sc.deletedAt != null ||
+    sc.deleted_at != null ||
+    sc.status === "deleted" ||
+    sc.status === "removed" ||
+    sc.estado === "eliminado" ||
+    sc.hidden === true ||
+    sc.active === false ||
+    sc.visible === false
+  );
+};
+
 const HotspotVisualEditor = ({
   projectId,
   scene,
@@ -34,30 +54,58 @@ const HotspotVisualEditor = ({
 
   const [viewerReady, setViewerReady] = useState(false);
 
+  // =========================================================
   // 1. OBTENER ESCENAS VÁLIDAS Y ELIMINAR DUPLICADOS
+  // =========================================================
   const validScenes = Object.entries(allScenes || {}).filter(
-    ([sk, sc]) => sc && !sc.deleted && !sc._deleted
+    ([sk, sc]) => sc && !isSceneDeleted(sc)
   );
-  
+
   const uniqueValidScenes = [];
   const validSceneKeys = [];
   const seenTitles = new Set();
-  
+
   validScenes.forEach(([sk, sc]) => {
-    const title = sc.title || sk;
-    if (!seenTitles.has(title)) {
-      seenTitles.add(title);
+    const title = (sc.title || sk || "").trim();
+    const dedupeKey = title.toLowerCase();
+    if (!seenTitles.has(dedupeKey)) {
+      seenTitles.add(dedupeKey);
       uniqueValidScenes.push([sk, sc]);
       validSceneKeys.push(sk);
     }
   });
 
+  const validSceneKeysJoined = validSceneKeys.join("|");
+
+  // =========================================================
+  // 1.b LIMPIAR HOTSPOTS HUÉRFANOS (nav apuntando a escena eliminada)
+  // =========================================================
+  useEffect(() => {
+    setHotspots((prev) => {
+      let changed = false;
+      const next = { ...prev };
+
+      Object.entries(next).forEach(([key, hs]) => {
+        const isNav = hs.cssClass === "moveScene";
+        if (isNav && hs.scene && !validSceneKeys.includes(hs.scene)) {
+          console.warn(
+            `🧹 Hotspot huérfano "${key}" apuntaba a escena eliminada "${hs.scene}". Se elimina.`
+          );
+          delete next[key];
+          changed = true;
+        }
+      });
+
+      return changed ? next : prev;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [validSceneKeysJoined]);
+
   // =========================
-  // UPLOAD CONFIG (igual que ProjectEditor)
+  // UPLOAD CONFIG
   // =========================
   const UPLOAD_URL = `${API_BASE_URL}/upload`;
 
-  // Upload (igual que ProjectEditor)
   const uploadImageToBackend = async ({ file, type }) => {
     if (!projectId) {
       throw new Error("No hay projectId. Cierra y vuelve a abrir el editor.");
@@ -67,10 +115,6 @@ const HotspotVisualEditor = ({
     formData.append("image", file);
     formData.append("projectId", projectId);
     formData.append("type", type);
-
-    for (const [k, v] of formData.entries()) {
-      console.log("FormData ->", k, v);
-    }
 
     const res = await fetch(UPLOAD_URL, {
       method: "POST",
@@ -221,7 +265,6 @@ const HotspotVisualEditor = ({
     const handleClick = (event) => {
       if (!placementMode || !pannellumRef.current) return;
 
-      // no colocar si clic en sidebar o controles
       if (
         event.target.closest(".hotspot-sidebar") ||
         event.target.closest(".visual-editor-controls")
@@ -234,26 +277,15 @@ const HotspotVisualEditor = ({
 
       const hotspotKey = `hotspot_${Date.now()}`;
 
-      // ✅ estructura completa
       const newHotspot = {
         type: "custom",
         pitch: coords[0],
         yaw: coords[1],
-
-        // 3 tipos: moveScene | hotSpotElement | infoHotspot
         cssClass: "moveScene",
-
-        // navegación
         scene: "",
-
-        // texto general (siempre)
         label: "Nuevo Hotspot",
-
-        // info / element
         title: "",
         description: "",
-
-        // element
         attachments: [],
       };
 
@@ -329,7 +361,7 @@ const HotspotVisualEditor = ({
   };
 
   // =========================
-  // ATTACHMENTS (UPLOAD MODE) ✅ IGUAL QUE ProjectEditor
+  // ATTACHMENTS
   // =========================
   const handleHotspotAttachmentUpload = async (hotspotKey, event) => {
     const file = event.target.files?.[0];
@@ -340,7 +372,6 @@ const HotspotVisualEditor = ({
         file,
         type: `hotspot_${sceneKey}_${hotspotKey}`,
       });
-      // Agregar timestamp para evitar caché del navegador
       const urlWithTimestamp = `${data.url}?t=${Date.now()}`;
 
       const newAtt = {
@@ -492,6 +523,13 @@ const HotspotVisualEditor = ({
               ? hotspot.attachments
               : [];
 
+            // ⚠️ nav huérfano: apunta a una escena eliminada
+            const orphanNav =
+              isNav && hotspot.scene && !validSceneKeys.includes(hotspot.scene);
+
+            // ocultar huérfanos (ya se limpian por useEffect, pero por seguridad)
+            if (orphanNav) return null;
+
             return (
               <div
                 key={key}
@@ -579,7 +617,11 @@ const HotspotVisualEditor = ({
                       <div className="form-group">
                         <label>Escena Destino</label>
                         <select
-                          value={validSceneKeys.includes(hotspot.scene) ? hotspot.scene : ""}
+                          value={
+                            validSceneKeys.includes(hotspot.scene)
+                              ? hotspot.scene
+                              : ""
+                          }
                           onChange={(e) =>
                             handleUpdateHotspot(key, "scene", e.target.value)
                           }
@@ -591,6 +633,21 @@ const HotspotVisualEditor = ({
                             </option>
                           ))}
                         </select>
+
+                        {/* ⚠️ aviso si el destino fue eliminado */}
+                        {hotspot.scene &&
+                          !validSceneKeys.includes(hotspot.scene) && (
+                            <small
+                              style={{
+                                color: "#dc2626",
+                                display: "block",
+                                marginTop: 4,
+                              }}
+                            >
+                              ⚠️ La escena destino fue eliminada. Selecciona
+                              otra.
+                            </small>
+                          )}
                       </div>
                     )}
 
@@ -735,7 +792,7 @@ const HotspotVisualEditor = ({
                                       </label>
                                       <input
                                         type="text"
-                                        value={att.folder || ""} // 👈 importante: que sea controlado
+                                        value={att.folder || ""}
                                         onChange={(e) =>
                                           handleUpdateHotspotAttachmentFolder(
                                             key,
