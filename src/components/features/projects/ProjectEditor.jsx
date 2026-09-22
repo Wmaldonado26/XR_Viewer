@@ -43,6 +43,24 @@ export default function ProjectEditorView({
 }) {
   const [draggedZoneIndex, setDraggedZoneIndex] = React.useState(null);
 
+  // 1. OBTENER ESCENAS VÁLIDAS Y ELIMINAR DUPLICADOS
+  const validScenes = Object.entries(project?.scenes || {}).filter(
+    ([sk, sc]) => sc && !sc.deleted && !sc._deleted
+  );
+  
+  const uniqueValidScenes = [];
+  const validSceneKeys = [];
+  const seenTitles = new Set();
+  
+  validScenes.forEach(([sk, sc]) => {
+    const title = sc.title || sk;
+    if (!seenTitles.has(title)) {
+      seenTitles.add(title);
+      uniqueValidScenes.push([sk, sc]);
+      validSceneKeys.push(sk);
+    }
+  });
+
   const dynamicNavbarTitle = (
     <div className="project-editor__nav-title-group">
       <h1 className="project-editor__nav-title">{project?.name || "Cargando..."}</h1>
@@ -783,10 +801,10 @@ export default function ProjectEditorView({
                         {isNav && (
                           <div className="form-group-modern compact full-width">
                             <label>Escena Destino</label>
-                            <select value={hotspot.scene || ""} onChange={(e) => handleUpdateHotspot(selectedScene, hotspotKey, "scene", e.target.value)}>
+                            <select value={validSceneKeys.includes(hotspot.scene) ? hotspot.scene : ""} onChange={(e) => handleUpdateHotspot(selectedScene, hotspotKey, "scene", e.target.value)}>
                               <option value="">Seleccionar...</option>
-                              {Object.keys(project.scenes || {}).map((key) => (
-                                <option key={key} value={key}>{project.scenes[key].title || key}</option>
+                              {uniqueValidScenes.map(([sk, sc]) => (
+                                <option key={sk} value={sk}>{sc.title || sk}</option>
                               ))}
                             </select>
                           </div>

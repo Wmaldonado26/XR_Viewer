@@ -34,6 +34,24 @@ const HotspotVisualEditor = ({
 
   const [viewerReady, setViewerReady] = useState(false);
 
+  // 1. OBTENER ESCENAS VÁLIDAS Y ELIMINAR DUPLICADOS
+  const validScenes = Object.entries(allScenes || {}).filter(
+    ([sk, sc]) => sc && !sc.deleted && !sc._deleted
+  );
+  
+  const uniqueValidScenes = [];
+  const validSceneKeys = [];
+  const seenTitles = new Set();
+  
+  validScenes.forEach(([sk, sc]) => {
+    const title = sc.title || sk;
+    if (!seenTitles.has(title)) {
+      seenTitles.add(title);
+      uniqueValidScenes.push([sk, sc]);
+      validSceneKeys.push(sk);
+    }
+  });
+
   // =========================
   // UPLOAD CONFIG (igual que ProjectEditor)
   // =========================
@@ -561,13 +579,13 @@ const HotspotVisualEditor = ({
                       <div className="form-group">
                         <label>Escena Destino</label>
                         <select
-                          value={hotspot.scene || ""}
+                          value={validSceneKeys.includes(hotspot.scene) ? hotspot.scene : ""}
                           onChange={(e) =>
                             handleUpdateHotspot(key, "scene", e.target.value)
                           }
                         >
                           <option value="">Seleccionar...</option>
-                          {Object.entries(allScenes).map(([sk, sc]) => (
+                          {uniqueValidScenes.map(([sk, sc]) => (
                             <option key={sk} value={sk}>
                               {sc.title || sk}
                             </option>
