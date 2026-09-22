@@ -35,4 +35,3 @@ prisma/*.db
 backend/uploads/
 
 # Local JSON data / Mock databases
-node_modules//* Light Mode Overrides for Gradients */
