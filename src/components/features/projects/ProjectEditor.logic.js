@@ -492,9 +492,35 @@ export default function useProjectEditorLogic({ projectId, onClose, onSave }) {
           const nextScenes = { ...(prev.scenes || {}) };
           if (zoneIdToDelete) {
             Object.keys(nextScenes).forEach((k) => {
-              const m = nextScenes[k]?.map;
-              if (m?.zoneId === zoneIdToDelete) {
-                nextScenes[k] = { ...nextScenes[k], map: undefined };
+              const scene = nextScenes[k];
+              
+              // 1. Si la escena pertenece directamente a la zona eliminada, se aplica borrado en cascada
+              if (scene?.zoneId === zoneIdToDelete) {
+                
+                // Borrar la imagen panorámica de Cloudinary
+                if (scene.image) {
+                  deleteImageFromBackend(scene.image);
+                }
+                
+                // Borrar imágenes adjuntas de los hotspots de esta escena
+                if (scene.hotSpots) {
+                  Object.values(scene.hotSpots).forEach(hs => {
+                    if (hs.attachments && Array.isArray(hs.attachments)) {
+                      hs.attachments.forEach(att => {
+                        if (att.url) deleteImageFromBackend(att.url);
+                      });
+                    }
+                  });
+                }
+                
+                // Eliminar la escena permanentemente de la lista
+                delete nextScenes[k];
+              } else {
+                // 2. Si es una escena de otra zona pero tenía un mapa apuntando a la zona eliminada
+                const m = scene?.map;
+                if (m?.zoneId === zoneIdToDelete) {
+                  nextScenes[k] = { ...scene, map: undefined };
+                }
               }
             });
           }
